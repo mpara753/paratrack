@@ -15,6 +15,9 @@ html,body { width:100%; height:100%; overflow:hidden; background:#07101e;
 #map { position:absolute; inset:0; }
 
 /* アイコン描画用Canvas（地図の上に重ねる） */
+#trailCanvas {
+  position:absolute; inset:0; z-index:4; pointer-events:none;
+}
 #iconCanvas {
   position:absolute; inset:0; z-index:5; pointer-events:none;
 }
@@ -180,6 +183,7 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <div id="map"></div>
+<canvas id="trailCanvas"></canvas>
 <canvas id="iconCanvas"></canvas>
 
 <div class="panel" id="header">
@@ -416,11 +420,11 @@ map.on('load', () => {
   if (pts.length > 0) renderMapLayers();
 });
 
-// 地図移動・ズーム時にアイコン再描画
-map.on('move', drawIcon);
-map.on('zoom', drawIcon);
-map.on('rotate', drawIcon);
-map.on('pitch', drawIcon);
+// ── 地図移動・ズーム・回転時に軌跡＋アイコンをCanvasで再描画
+map.on('move',   () => { drawTrailCanvas(); drawIcon(); });
+map.on('zoom',   () => { drawTrailCanvas(); drawIcon(); });
+map.on('rotate', () => { drawTrailCanvas(); drawIcon(); });
+map.on('pitch',  () => { drawTrailCanvas(); drawIcon(); });
 
 function emptyGeoJSON() {
   return { type: 'FeatureCollection', features: [] };
@@ -447,64 +451,162 @@ function totalDur() { return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pt
 function headIdx()  { return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1); }
 
 // ══════════════════════════════════════════
-// 地図レイヤー描画
+// 高度→スクリーンYオフセット変換
+// MapLibreのpitch角に応じて高度をピクセルに変換
 // ══════════════════════════════════════════
-function renderMapLayers() {
-  if (!mapLoaded || !pts.length) return;
-  const hi = headIdx();
-
-  // ── 全ルート（変化なし・一度だけ更新）
-  // buildFlightData() から呼ばれる時だけ更新
-  // ── テール（毎フレーム更新）
-  updateTailLayer(hi);
+function altToScreenOffset(alt) {
+  if (!bnds) return 0;
+  const pitch = map.getPitch(); // 0〜85度
+  const zoom  = map.getZoom();
+  // ピッチ0°=高度は見えない、ピッチ大=高度が見えてくる
+  const pitchRad = pitch * Math.PI / 180;
+  // zoom に応じたスケール（zoom10で約1m≒0.15px相当）
+  const metersPerPx = 156543.03 / Math.pow(2, zoom); // 赤道基準
+  const altPx = (alt / metersPerPx) * Math.sin(pitchRad) * 0.8;
+  return altPx; // 正の値 = 上方向にオフセット
 }
 
-function buildFullTrail() {
-  if (!mapLoaded || !pts.length) return;
-  const coords = pts.map(p => [p.lon, p.lat]);
-  map.getSource('full-trail').setData({
-    type: 'FeatureCollection',
-    features: [{
-      type: 'Feature',
-      geometry: { type: 'LineString', coordinates: coords }
-    }]
-  });
+// ══════════════════════════════════════════
+// Canvas軌跡描画（高度を反映した3D表示）
+// ══════════════════════════════════════════
+function projectPoint(p) {
+  const sp = map.project([p.lon, p.lat]);
+  const yOff = altToScreenOffset(p.alt);
+  return { x: sp.x, y: sp.y - yOff };
 }
 
-function updateTailLayer(hi) {
-  if (!mapLoaded || !pts.length) return;
-  const cur = pts[hi];
+function drawTrailCanvas() {
+  // trailCanvas は iconCanvas と別レイヤーで管理
+  tCtx.clearRect(0, 0, tCvs.width, tCvs.height);
+  if (!pts.length) return;
 
-  // テール区間を探す
+  const hi   = headIdx();
+  const n    = pts.length;
+  const minA = bnds.minAlt, maxA = bnds.maxAlt;
+
+  // ── 地面影（高度0の位置に薄い線）
+  tCtx.save();
+  tCtx.strokeStyle = 'rgba(80,160,255,0.18)';
+  tCtx.lineWidth   = Math.max(1, trailW * 0.4);
+  tCtx.setLineDash([4,4]);
+  tCtx.beginPath();
+  for (let i=0; i<=hi; i++) {
+    const sp = map.project([pts[i].lon, pts[i].lat]);
+    i===0 ? tCtx.moveTo(sp.x, sp.y) : tCtx.lineTo(sp.x, sp.y);
+  }
+  tCtx.stroke();
+  tCtx.setLineDash([]);
+  tCtx.restore();
+
+  // ── 全ルート（高度反映・薄い青線）
+  tCtx.save();
+  tCtx.strokeStyle = 'rgba(77,184,255,0.45)';
+  tCtx.lineWidth   = Math.max(1.5, trailW * 0.5);
+  tCtx.lineJoin    = 'round';
+  tCtx.lineCap     = 'round';
+  tCtx.beginPath();
+  for (let i=0; i<n; i++) {
+    const p = projectPoint(pts[i]);
+    i===0 ? tCtx.moveTo(p.x, p.y) : tCtx.lineTo(p.x, p.y);
+  }
+  tCtx.stroke();
+  tCtx.restore();
+
+  // ── テール（直近tailSec秒・高度で色変化）
   let tailStart = 0;
   for (let i=hi; i>=0; i--) {
     tailStart = i;
-    if (pts[i].time <= cur.time - tailSec) break;
+    if (pts[i].time <= pts[hi].time - tailSec) break;
+  }
+  for (let i=tailStart; i<hi; i++) {
+    const [r,g,b] = altColor(pts[i].alt, minA, maxA);
+    const p0 = projectPoint(pts[i]);
+    const p1 = projectPoint(pts[i+1]);
+    tCtx.save();
+    tCtx.strokeStyle = `rgb(${r},${g},${b})`;
+    tCtx.lineWidth   = trailW;
+    tCtx.lineJoin    = 'round';
+    tCtx.lineCap     = 'round';
+    tCtx.beginPath();
+    tCtx.moveTo(p0.x, p0.y);
+    tCtx.lineTo(p1.x, p1.y);
+    tCtx.stroke();
+    tCtx.restore();
   }
 
-  // テールをセグメント単位でfeatureにして色をつける
-  const features = [];
-  for (let i=tailStart; i<hi; i++) {
-    const [r,g,b] = altColor(pts[i].alt, bnds.minAlt, bnds.maxAlt);
-    features.push({
-      type: 'Feature',
-      properties: { color: rgbHex(r,g,b) },
-      geometry: {
-        type: 'LineString',
-        coordinates: [[pts[i].lon, pts[i].lat], [pts[i+1].lon, pts[i+1].lat]]
-      }
-    });
+  // ── 現在位置の垂直線（地面→機体）
+  if (pts[hi]) {
+    const cur   = pts[hi];
+    const gnd   = map.project([cur.lon, cur.lat]);
+    const airPt = projectPoint(cur);
+    tCtx.save();
+    tCtx.strokeStyle = 'rgba(255,140,60,0.5)';
+    tCtx.lineWidth   = 1.2;
+    tCtx.setLineDash([3,4]);
+    tCtx.beginPath();
+    tCtx.moveTo(gnd.x, gnd.y);
+    tCtx.lineTo(airPt.x, airPt.y);
+    tCtx.stroke();
+    tCtx.setLineDash([]);
+    tCtx.restore();
+
+    // 地面の足元マーカー
+    tCtx.save();
+    tCtx.fillStyle = 'rgba(255,140,60,0.4)';
+    tCtx.beginPath();
+    tCtx.arc(gnd.x, gnd.y, 4, 0, Math.PI*2);
+    tCtx.fill();
+    tCtx.restore();
   }
-  map.getSource('tail-trail').setData({ type:'FeatureCollection', features });
+
+  // ── スタートマーカー（緑）
+  const s0 = projectPoint(pts[0]);
+  tCtx.save();
+  tCtx.fillStyle = '#00ff78';
+  tCtx.strokeStyle = '#fff';
+  tCtx.lineWidth = 1.5;
+  tCtx.beginPath(); tCtx.arc(s0.x, s0.y, 6, 0, Math.PI*2);
+  tCtx.fill(); tCtx.stroke();
+  tCtx.restore();
+
+  // ── エンドマーカー（赤）
+  const sN = projectPoint(pts[n-1]);
+  tCtx.save();
+  tCtx.fillStyle = '#ff3c3c';
+  tCtx.strokeStyle = '#fff';
+  tCtx.lineWidth = 1.5;
+  tCtx.beginPath(); tCtx.arc(sN.x, sN.y, 6, 0, Math.PI*2);
+  tCtx.fill(); tCtx.stroke();
+  tCtx.restore();
+}
+
+function renderMapLayers() {
+  // GeoJSONレイヤーは地面シャドウのみ使用（MapLibre標準）
+  // 高度反映の軌跡はすべてCanvas描画
+  if (!mapLoaded || !pts.length) return;
+  buildFullTrail();
+  drawTrailCanvas();
+}
+
+function buildFullTrail() {
+  // GeoJSONは非表示にして、Canvas描画に全面移行
+  if (!mapLoaded || !pts.length) return;
+  // full-trail と tail-trail は非表示
+  map.getSource('full-trail').setData(emptyGeoJSON());
+  map.getSource('tail-trail').setData(emptyGeoJSON());
 }
 
 // ══════════════════════════════════════════
 // アイコン Canvas（パラグライダーアイコン）
 // ══════════════════════════════════════════
+const tCvs = document.getElementById('trailCanvas');
+const tCtx = tCvs.getContext('2d');
 const iconCvs = document.getElementById('iconCanvas');
 const iconCtx = iconCvs.getContext('2d');
 
 function resizeIconCanvas() {
+  tCvs.width  = window.innerWidth;
+  tCvs.height = window.innerHeight;
   iconCvs.width  = window.innerWidth;
   iconCvs.height = window.innerHeight;
 }
@@ -672,7 +774,7 @@ function drawIcon() {
 function updateFrame() {
   if (!pts.length) return;
   const hi = headIdx();
-  updateTailLayer(hi);
+  drawTrailCanvas();
   drawIcon();
   if (followMode) {
     const cur = pts[hi];
@@ -865,6 +967,7 @@ function resetFlight() {
   if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   pts = []; bnds = null; playhead = 0; prevTs = null; frameCount = 0;
   iconCtx.clearRect(0, 0, iconCvs.width, iconCvs.height);
+  tCtx.clearRect(0, 0, tCvs.width, tCvs.height);
   if (mapLoaded) {
     map.getSource('full-trail').setData(emptyGeoJSON());
     map.getSource('tail-trail').setData(emptyGeoJSON());
