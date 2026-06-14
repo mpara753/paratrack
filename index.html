@@ -410,15 +410,15 @@ function buildEntities() {
   clearEntities();
   const n = pts.length;
 
-  // 全ルート（薄い線）— CallbackProperty で配列参照を渡す（polylineのpositionsには有効）
+  // 全ルート（視認できる太さ・明るさに変更）
   fullTrailPositions = pts.map(p =>
     Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt * zScale)
   );
   fullTrailEntity = viewer.entities.add({
     polyline: {
       positions: new Cesium.CallbackProperty(() => fullTrailPositions, false),
-      width: Math.max(1, trailW * 0.4),
-      material: new Cesium.ColorMaterialProperty(new Cesium.Color(0.4, 0.65, 1.0, 0.22)),
+      width: Math.max(2, trailW * 0.7),
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(0.3, 0.75, 1.0, 0.7)),
       clampToGround: false,
     }
   });
@@ -518,11 +518,22 @@ function updateFrame() {
     aircraftEntity.label.text = Math.round(cur.alt) + ' m';
   }
 
-  // 追従
+  // 追従：lookAt はカメラを完全固定してしまうため使わない
+  // 代わりにカメラの現在の高度オフセットを維持しながらターゲット位置だけ移動
   if(followMode && newPos) {
-    viewer.camera.lookAt(newPos, new Cesium.HeadingPitchRange(
-      viewer.camera.heading, Cesium.Math.toRadians(-35), 3000
-    ));
+    // 現在のカメラとターゲットの高度差を維持しつつ、真上から少し傾けて追従
+    viewer.camera.setView({
+      destination: new Cesium.Cartesian3(
+        newPos.x + followOffset.x,
+        newPos.y + followOffset.y,
+        newPos.z + followOffset.z
+      ),
+      orientation: {
+        heading: viewer.camera.heading,
+        pitch:   viewer.camera.pitch,
+        roll:    0,
+      }
+    });
   }
 }
 
@@ -652,10 +663,27 @@ function toggle3D() {
   document.getElementById('b3d').classList.toggle('on', is3D);
   is3D ? viewer.scene.morphTo3D(0.5) : viewer.scene.morphTo2D(0.5);
 }
+// 追従時のカメラオフセット（機体位置からの差分）
+let followOffset = { x: 0, y: 0, z: 3000 };
+
 function toggleFollow() {
   followMode = !followMode;
   document.getElementById('bFol').classList.toggle('on', followMode);
-  if(!followMode) viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  if(followMode && pts.length) {
+    // 追従ON時：現在の機体位置とカメラ位置の差をオフセットとして記憶
+    const hi = headIdx();
+    const cur = pts[hi];
+    const target = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale);
+    const cam = viewer.camera.position;
+    followOffset = {
+      x: cam.x - target.x,
+      y: cam.y - target.y,
+      z: cam.z - target.z,
+    };
+  } else if(!followMode) {
+    // 追従OFF時：lookAtTransform を解除（lookAt使用時のロック解除）
+    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  }
 }
 function fitAll() {
   if(!pts.length) return;
