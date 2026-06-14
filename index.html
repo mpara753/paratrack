@@ -414,7 +414,8 @@ function buildTrail() {
 }
 function updateAircraft() {
   if(!aircraftEntity||!pts.length) return;
-  const cur=pts[headIdx()];
+  const hi = headIdx();
+  const cur=pts[hi];
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
