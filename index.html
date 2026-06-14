@@ -331,7 +331,7 @@ const ICON='data:image/svg+xml,'+encodeURIComponent(
 function buildTrail() {
   clearEntities();
   if(!pts.length) return;
-  const n=pts.length,SEG=40;
+  const n=pts.length, SEG=Math.max(2, Math.floor(n/100));
   for(let s=0;s<n-1;s+=SEG){
     const end=Math.min(s+SEG,n-1),positions=[];
     for(let i=s;i<=end;i++)
