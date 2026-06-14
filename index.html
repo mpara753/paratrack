@@ -202,7 +202,7 @@ viewer.scene.skyAtmosphere.show = true;
 let pts=[], bnds=null, playhead=0, playing=false, rafId=null, prevTs=null;
 let zScale=1, trailW=3, is3D=true, followMode=false, frameCount=0;
 let followDistance=8000, followHeading=0, followPitch=Cesium.Math.toRadians(-35);
-let trailEntities=[], markerStart=null, markerEnd=null, aircraftEntity=null, tailEntity=null;
+let trailEntities=[], markerStart=null, markerEnd=null, aircraftEntity=null, tailEntity=null, tailGlowEntity=null;
 
 const TAIL_SEC = 8;
 
@@ -321,6 +321,7 @@ function clearEntities() {
   if(markerEnd){viewer.entities.remove(markerEnd);markerEnd=null;}
   if(aircraftEntity){viewer.entities.remove(aircraftEntity);aircraftEntity=null;}
   if(tailEntity){viewer.entities.remove(tailEntity);tailEntity=null;}
+  if(tailGlowEntity){viewer.entities.remove(tailGlowEntity);tailGlowEntity=null;}
 }
 
 const ICON='data:image/svg+xml,'+encodeURIComponent(
@@ -366,15 +367,29 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
-  // 直近テール（白色）
+  // 直近テール グロー層（太い半透明）
+  const initPos2 = new Cesium.ConstantProperty([
+    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+  ]);
+  tailGlowEntity = viewer.entities.add({
+    polyline:{
+      positions: initPos2,
+      width: trailW+8,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
+      clampToGround:false,
+    }
+  });
+  // 直近テール コア層（細い明るい線）
+  const initPos = new Cesium.ConstantProperty([
+    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+  ]);
   tailEntity = viewer.entities.add({
     polyline:{
-      positions: new Cesium.ConstantProperty([
-        Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-        Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-      ]),
-      width: trailW+1,
-      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,1.0,0.95)),
+      positions: initPos,
+      width: trailW+3,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
       clampToGround:false,
     }
   });
@@ -415,7 +430,11 @@ function updateAircraft() {
     const tp=[];
     for(let i=tailStart;i<=hi;i++)
       tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
-    if(tp.length>=2) tailEntity.polyline.positions=new Cesium.ConstantProperty(tp);
+    if(tp.length>=2){
+      const cp = new Cesium.ConstantProperty(tp);
+      tailEntity.polyline.positions=cp;
+      if(tailGlowEntity) tailGlowEntity.polyline.positions=new Cesium.ConstantProperty(tp);
+    }
   }
   // アイコンスケール
   const camHeight=viewer.camera.positionCartographic.height;
