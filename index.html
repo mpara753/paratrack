@@ -270,6 +270,16 @@ viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
 
+// カメラを日本上空に初期設定
+viewer.camera.setView({
+  destination: Cesium.Cartesian3.fromDegrees(137.0, 36.0, 1500000),
+  orientation: {
+    heading: Cesium.Math.toRadians(0),
+    pitch:   Cesium.Math.toRadians(-45),
+    roll:    0,
+  }
+});
+
 function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('lb-'+id).classList.add('on');
