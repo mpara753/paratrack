@@ -175,22 +175,25 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 // ── Cesium（test_cesium.html と同じ初期化）
 Cesium.Ion.defaultAccessToken = '';
 
-// imageryProvider:false でViewer初期化時のIonリクエストを完全に抑制
+// Globe を手動作成してESRIタイルを直接渡す（IonのWorld Imageryを完全回避）
+const esriProvider = new Cesium.UrlTemplateImageryProvider({
+  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  maximumLevel: 19,
+  credit: new Cesium.Credit('Tiles &copy; Esri', false),
+});
+
+const customGlobe = new Cesium.Globe(Cesium.Ellipsoid.WGS84);
+customGlobe.imageryLayers.removeAll();
+customGlobe.imageryLayers.addImageryProvider(esriProvider);
+
 const viewer = new Cesium.Viewer('cesiumContainer', {
-  imageryProvider: false,
+  globe: customGlobe,
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
   sceneModePicker:false, navigationHelpButton:false,
   animation:false, timeline:false, fullscreenButton:false,
   infoBox:false, selectionIndicator:false,
 });
-
-// ESRIタイルを追加（removeAllは不要・imageryProvider:falseで空の状態）
-viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  maximumLevel: 19,
-  credit: new Cesium.Credit('Tiles &copy; Esri', false),
-}));
 
 viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
@@ -311,8 +314,8 @@ function headIdx(){return Math.min(Math.floor(playhead*(pts.length-1)),pts.lengt
 function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('lb-'+id).classList.add('on');
-  viewer.imageryLayers.removeAll();
-  viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+  customGlobe.imageryLayers.removeAll();
+  customGlobe.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
     url: id==='sat'
       ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
       : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
