@@ -367,26 +367,20 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
-  // 直近テール（buildTrailで1度だけ作成、updateAircraftで座標更新）
+  // 直近テール（buildTrailで初期作成）
   const initTp = [
     Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+    Cesium.Cartesian3.fromDegrees(pts[Math.min(1,pts.length-1)].lon,pts[Math.min(1,pts.length-1)].lat,pts[Math.min(1,pts.length-1)].alt*zScale),
   ];
   tailGlowEntity = viewer.entities.add({
-    polyline:{
-      positions: initTp,
-      width: trailW+8,
-      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
-      clampToGround:false,
-    }
+    polyline:{positions:initTp, width:trailW+8,
+      material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
+      clampToGround:false}
   });
   tailEntity = viewer.entities.add({
-    polyline:{
-      positions: initTp,
-      width: trailW+3,
-      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
-      clampToGround:false,
-    }
+    polyline:{positions:initTp, width:trailW+3,
+      material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
+      clampToGround:false}
   });
   // スタート/エンドマーカー
   markerStart=viewer.entities.add({
@@ -420,15 +414,8 @@ function updateAircraft() {
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
   // テール更新
   if(hi>0 && tailEntity) {
-    let tailStart=hi;
-    for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
-    const tp=[];
-    for(let i=tailStart;i<=hi;i++)
-      tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
-    if(tp.length>=2){
-      tailEntity.polyline.positions = tp;
-      if(tailGlowEntity) tailGlowEntity.polyline.positions = tp;
-    }
+    // テールは30フレームに1回だけ更新（毎フレーム更新するとクラッシュ）
+    if(frameCount%30===0) updateTail(hi, cur);
   }
   // アイコンスケール
   const camHeight=viewer.camera.positionCartographic.height;
@@ -438,6 +425,29 @@ function updateAircraft() {
   // 追従
   if(followMode){
     viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
+  }
+}
+
+function updateTail(hi, cur) {
+  if(!pts.length || !tailEntity) return;
+  let tailStart=hi;
+  for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
+  const tp=[];
+  for(let i=tailStart;i<=hi;i++)
+    tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
+  if(tp.length>=2){
+    if(tailGlowEntity){viewer.entities.remove(tailGlowEntity);}
+    if(tailEntity){viewer.entities.remove(tailEntity);}
+    tailGlowEntity=viewer.entities.add({
+      polyline:{positions:tp,width:trailW+8,
+        material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
+        clampToGround:false}
+    });
+    tailEntity=viewer.entities.add({
+      polyline:{positions:tp,width:trailW+3,
+        material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
+        clampToGround:false}
+    });
   }
 }
 
