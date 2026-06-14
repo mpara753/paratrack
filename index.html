@@ -336,25 +336,16 @@ function updateAircraft() {
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
-  // 機体追従
-  if(followMode) {
-    viewer.camera.lookAt(
-      pos,
-      new Cesium.HeadingPitchRange(
-        viewer.camera.heading,
-        Cesium.Math.toRadians(-35),
-        2000
-      )
-    );
-  }
 }
 
-// 追従OFF時にカメラロックを解除
 function toggleFollow() {
   followMode=!followMode;
   document.getElementById('bFol').classList.toggle('on',followMode);
-  if(!followMode) {
-    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  if(followMode) {
+    // Cesium の trackedEntity で機体を追従
+    viewer.trackedEntity = aircraftEntity;
+  } else {
+    viewer.trackedEntity = undefined;
   }
 }
 
