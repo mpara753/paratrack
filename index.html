@@ -344,36 +344,46 @@ function headIdx()  { return Math.min(Math.floor(playhead*(pts.length-1)),pts.le
 // ════════════════════════════════════════════
 // Cesium ビューア初期化
 // ════════════════════════════════════════════
-Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTQwNjQsImlhdCI6MTYyODIyNDY5NH0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+// Ion トークンを空にしてIon依存をなくす
+Cesium.Ion.defaultAccessToken = '';
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
-  imageryProvider: new Cesium.UrlTemplateImageryProvider({
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    credit: '© Esri'
-  }),
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
   sceneModePicker:false, navigationHelpButton:false,
   animation:false, timeline:false, fullscreenButton:false,
   infoBox:false, selectionIndicator:false,
+  imageryProvider: false,  // 自前で追加する
 });
+
+// 衛星写真レイヤー（ESRI - 無料・認証不要）
+const SAT_LAYER = viewer.imageryLayers.addImageryProvider(
+  new Cesium.UrlTemplateImageryProvider({
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    maximumLevel: 19,
+    credit: new Cesium.Credit('© Esri', false),
+  })
+);
+
+// OSMレイヤー（非表示で待機）
+const OSM_LAYER = viewer.imageryLayers.addImageryProvider(
+  new Cesium.UrlTemplateImageryProvider({
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maximumLevel: 19,
+    credit: new Cesium.Credit('© OpenStreetMap contributors', false),
+  })
+);
+OSM_LAYER.show = false;
+
 viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
 
-const SAT_PROVIDER = new Cesium.UrlTemplateImageryProvider({
-  url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-  credit:'© Esri'
-});
-const OSM_PROVIDER = new Cesium.OpenStreetMapImageryProvider({
-  url:'https://tile.openstreetmap.org/'
-});
-
 function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('lb-'+id).classList.add('on');
-  viewer.imageryLayers.removeAll();
-  viewer.imageryLayers.addImageryProvider(id==='sat'?SAT_PROVIDER:OSM_PROVIDER);
+  SAT_LAYER.show = (id === 'sat');
+  OSM_LAYER.show = (id === 'osm');
 }
 
 // ════════════════════════════════════════════
