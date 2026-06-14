@@ -202,7 +202,7 @@ viewer.scene.skyAtmosphere.show = true;
 viewer.camera.changed.addEventListener(() => {
   if(aircraftEntity && pts.length) {
     const camHeight = viewer.camera.positionCartographic.height;
-    const minH=500, maxH=200000, minS=0.5, maxS=0.08;
+    const minH=500, maxH=200000, minS=0.6, maxS=0.08;
     const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
     aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
   }
