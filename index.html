@@ -402,7 +402,7 @@ function updateAircraft() {
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
   // テール更新
-  if(hi>0) {
+  if(hi>0 && frameCount%10===0) {
     // テール座標を計算
     let tailStart=hi;
     for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
