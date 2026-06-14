@@ -344,36 +344,21 @@ function headIdx()  { return Math.min(Math.floor(playhead*(pts.length-1)),pts.le
 // ════════════════════════════════════════════
 // Cesium ビューア初期化
 // ════════════════════════════════════════════
-// Ion トークンを空にしてIon依存をなくす
-Cesium.Ion.defaultAccessToken = '';
+Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTQwNjQsImlhdCI6MTYyODIyNDY5NH0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
 
+// ESRI衛星写真を初期レイヤーとして直接設定（動作実績あり）
 const viewer = new Cesium.Viewer('cesiumContainer', {
+  imageryProvider: new Cesium.UrlTemplateImageryProvider({
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    maximumLevel: 19,
+    credit: new Cesium.Credit('Tiles © Esri', false),
+  }),
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
   sceneModePicker:false, navigationHelpButton:false,
   animation:false, timeline:false, fullscreenButton:false,
   infoBox:false, selectionIndicator:false,
-  imageryProvider: false,  // 自前で追加する
 });
-
-// 衛星写真レイヤー（ESRI - 無料・認証不要）
-const SAT_LAYER = viewer.imageryLayers.addImageryProvider(
-  new Cesium.UrlTemplateImageryProvider({
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    maximumLevel: 19,
-    credit: new Cesium.Credit('© Esri', false),
-  })
-);
-
-// OSMレイヤー（非表示で待機）
-const OSM_LAYER = viewer.imageryLayers.addImageryProvider(
-  new Cesium.UrlTemplateImageryProvider({
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    maximumLevel: 19,
-    credit: new Cesium.Credit('© OpenStreetMap contributors', false),
-  })
-);
-OSM_LAYER.show = false;
 
 viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
@@ -382,8 +367,20 @@ viewer.scene.skyAtmosphere.show = true;
 function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('lb-'+id).classList.add('on');
-  SAT_LAYER.show = (id === 'sat');
-  OSM_LAYER.show = (id === 'osm');
+  viewer.imageryLayers.removeAll();
+  if(id === 'sat') {
+    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      maximumLevel: 19,
+      credit: new Cesium.Credit('Tiles © Esri', false),
+    }));
+  } else {
+    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      maximumLevel: 19,
+      credit: new Cesium.Credit('© OpenStreetMap contributors', false),
+    }));
+  }
 }
 
 // ════════════════════════════════════════════
@@ -392,8 +389,7 @@ function setLayer(id) {
 // → 配列を書き換えるだけで自動的に反映される
 // ════════════════════════════════════════════
 let fullTrailPositions = [];  // 全ルート座標（固定）
-let tailPositions      = [];  // テール座標（毎フレーム書き換える）
-let aircraftPos        = null;
+let tailPositions      = [];  // テール座標（毎フレーム in-place 書き換え）
 
 let fullTrailEntity  = null;
 let tailEntity       = null;
@@ -408,14 +404,13 @@ function clearEntities() {
   fullTrailEntity = tailEntity = markerStart = markerEnd = aircraftEntity = null;
   fullTrailPositions = [];
   tailPositions = [];
-  aircraftPos = null;
 }
 
 function buildEntities() {
   clearEntities();
   const n = pts.length;
 
-  // 全ルート（薄い線）— CallbackProperty で配列参照を渡す
+  // 全ルート（薄い線）— CallbackProperty で配列参照を渡す（polylineのpositionsには有効）
   fullTrailPositions = pts.map(p =>
     Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt * zScale)
   );
@@ -439,8 +434,9 @@ function buildEntities() {
     }
   });
 
-  // 機体アイコン — CallbackProperty で位置参照を渡す
-  aircraftPos = Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt * zScale);
+  // 機体アイコン — position には ConstantPositionProperty を使う
+  // （CallbackProperty を position に使うとCesiumの内部エラーになる）
+  const initPos = Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt * zScale);
   const svgData = 'data:image/svg+xml,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48">'
     +'<circle cx="24" cy="28" r="16" fill="rgba(245,200,66,0.18)"/>'
@@ -454,7 +450,7 @@ function buildEntities() {
     +'</svg>'
   );
   aircraftEntity = viewer.entities.add({
-    position: new Cesium.CallbackProperty(() => aircraftPos, false),
+    position: new Cesium.ConstantPositionProperty(initPos),
     billboard: {
       image: svgData,
       width: 52, height: 52,
@@ -464,7 +460,7 @@ function buildEntities() {
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
     },
     label: {
-      text: new Cesium.CallbackProperty(() => aircraftLabelText, false),
+      text: Math.round(pts[0].alt) + ' m',
       font: 'bold 13px sans-serif',
       fillColor:    Cesium.Color.fromCssColorString('#f5c842'),
       outlineColor: Cesium.Color.BLACK,
@@ -492,8 +488,6 @@ function buildEntities() {
 // ════════════════════════════════════════════
 // レンダリング（毎フレーム：配列を書き換えるだけ）
 // ════════════════════════════════════════════
-let aircraftLabelText = '';
-
 function updateFrame() {
   if(!pts.length) return;
   const hi  = headIdx();
@@ -517,13 +511,16 @@ function updateFrame() {
   const tailColor = new Cesium.Color(t, 0.78 - t*0.36, 1 - t*0.86, 1.0);
   if(tailEntity) tailEntity.polyline.material = new Cesium.ColorMaterialProperty(tailColor);
 
-  // 機体位置を更新（参照先の値を書き換える）
-  aircraftPos = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale);
-  aircraftLabelText = Math.round(cur.alt) + ' m';
+  // 機体位置を ConstantPositionProperty.setValue() で更新
+  const newPos = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale);
+  if(aircraftEntity) {
+    aircraftEntity.position.setValue(newPos);
+    aircraftEntity.label.text = Math.round(cur.alt) + ' m';
+  }
 
   // 追従
-  if(followMode && aircraftPos) {
-    viewer.camera.lookAt(aircraftPos, new Cesium.HeadingPitchRange(
+  if(followMode && newPos) {
+    viewer.camera.lookAt(newPos, new Cesium.HeadingPitchRange(
       viewer.camera.heading, Cesium.Math.toRadians(-35), 3000
     ));
   }
