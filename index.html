@@ -11,64 +11,34 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { width:100%; height:100%; overflow:hidden; background:#07101e;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; }
-
 #cesiumContainer { position:absolute; inset:0; z-index:0; }
-
 .panel {
   position:absolute; z-index:10;
   background:rgba(8,16,32,0.92); border:1px solid rgba(255,255,255,0.12);
   border-radius:11px; backdrop-filter:blur(16px); color:#d4e8f5;
 }
-#header {
-  top:12px; left:12px; right:12px;
-  display:flex; align-items:center; gap:12px; padding:9px 16px;
-}
+#header { top:12px; left:12px; right:12px; display:flex; align-items:center; gap:12px; padding:9px 16px; }
 .logo { font-size:22px; }
 .app-name { font-size:16px; font-weight:700; color:#f5c842; letter-spacing:.06em; }
 .app-sub  { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.13em; margin-top:1px; }
 #hstats { display:none; gap:14px; margin-left:auto; }
 .hs .v { font-size:14px; font-weight:700; color:#f5c842; font-variant-numeric:tabular-nums; }
 .hs .l { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.07em; }
-
-#side {
-  position:absolute; z-index:10;
-  left:12px; top:68px; bottom:12px;
-  width:248px; display:flex; flex-direction:column; gap:8px;
-}
-.card {
-  background:rgba(8,16,32,0.92); border:1px solid rgba(255,255,255,0.12);
-  border-radius:10px; padding:12px 14px; backdrop-filter:blur(16px); flex-shrink:0;
-}
+#side { position:absolute; z-index:10; left:12px; top:68px; bottom:12px; width:248px; display:flex; flex-direction:column; gap:8px; }
+.card { background:rgba(8,16,32,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:12px 14px; backdrop-filter:blur(16px); flex-shrink:0; }
 .card-grow { flex:1; min-height:0; display:flex; flex-direction:column; }
-.sec {
-  font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:#5a7fa0;
-  margin-bottom:9px; display:flex; align-items:center; gap:5px;
-}
+.sec { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:#5a7fa0; margin-bottom:9px; display:flex; align-items:center; gap:5px; }
 .sec::before { content:''; width:9px; height:1px; background:#f5c842; display:block; flex-shrink:0; }
 .lbtns { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
-.lbtn {
-  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10);
-  border-radius:6px; padding:7px 4px; color:#d4e8f5; font-size:10px;
-  cursor:pointer; text-align:center; transition:all .14s; font-family:inherit;
-}
+.lbtn { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:6px; padding:7px 4px; color:#d4e8f5; font-size:10px; cursor:pointer; text-align:center; transition:all .14s; font-family:inherit; }
 .lbtn:hover { border-color:#f5c842; color:#f5c842; }
 .lbtn.on    { background:rgba(245,200,66,.18); border-color:#f5c842; color:#f5c842; }
 .prow { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-.pbtn {
-  width:38px; height:38px; border-radius:50%; flex-shrink:0;
-  background:linear-gradient(135deg,#f59b1a,#f5c842); border:none; color:#07101e;
-  font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:transform .1s;
-}
+.pbtn { width:38px; height:38px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#f59b1a,#f5c842); border:none; color:#07101e; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .1s; }
 .pbtn:hover { transform:scale(1.08); }
-.ssel {
-  flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);
-  border-radius:6px; color:#d4e8f5; font-size:11px; padding:6px 7px;
-  outline:none; cursor:pointer; font-family:inherit;
-}
+.ssel { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:6px; color:#d4e8f5; font-size:11px; padding:6px 7px; outline:none; cursor:pointer; font-family:inherit; }
 .ssel option { background:#07101e; }
-.pbar { width:100%; height:6px; background:rgba(255,255,255,.10);
-  border-radius:3px; overflow:hidden; cursor:pointer; margin-bottom:5px; }
+.pbar { width:100%; height:6px; background:rgba(255,255,255,.10); border-radius:3px; overflow:hidden; cursor:pointer; margin-bottom:5px; }
 .pfill { height:100%; width:0%; background:linear-gradient(90deg,#00d4ff,#f5c842); border-radius:3px; }
 .trow { display:flex; justify-content:space-between; font-size:10px; color:#5a7fa0; }
 .tval { color:#d4e8f5; font-size:12px; font-variant-numeric:tabular-nums; }
@@ -76,70 +46,33 @@ html,body { width:100%; height:100%; overflow:hidden; background:#07101e;
 .sr { display:flex; justify-content:space-between; margin-bottom:3px; }
 .sl { font-size:10px; color:#5a7fa0; }
 .sv { font-size:10px; color:#f5c842; font-weight:600; }
-input[type=range] {
-  -webkit-appearance:none; width:100%; height:4px; border-radius:2px;
-  background:rgba(255,255,255,.12); outline:none; cursor:pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#f5c842;
-}
+input[type=range] { -webkit-appearance:none; width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,.12); outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#f5c842; }
 .sgrid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.sbox { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-  border-radius:7px; padding:8px 10px; }
+.sbox { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:7px; padding:8px 10px; }
 .sbox .bv { font-size:15px; font-weight:700; color:#f5c842; line-height:1; font-variant-numeric:tabular-nums; }
 .sbox .bl { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
 #altCvs { width:100%; flex:1; display:block; cursor:crosshair; min-height:40px; }
 .legrow { display:flex; align-items:center; gap:5px; margin-top:5px; flex-shrink:0; }
 .legbar { flex:1; height:3px; border-radius:2px; background:linear-gradient(90deg,#00d4ff,#ff6b35); }
 .legl { font-size:9px; color:#5a7fa0; }
-.newbtn {
-  width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09);
-  border-radius:6px; color:#5a7fa0; font-size:10px; padding:7px;
-  cursor:pointer; margin-top:7px; font-family:inherit; flex-shrink:0; transition:all .14s;
-}
+.newbtn { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:6px; color:#5a7fa0; font-size:10px; padding:7px; cursor:pointer; margin-top:7px; font-family:inherit; flex-shrink:0; transition:all .14s; }
 .newbtn:hover { color:#f5c842; border-color:#f5c842; }
-#rc {
-  position:absolute; z-index:10; right:12px; top:68px;
-  display:flex; flex-direction:column; gap:7px;
-}
-.cbtn {
-  width:40px; height:40px; border-radius:9px;
-  background:rgba(8,16,32,.92); border:1px solid rgba(255,255,255,.12);
-  backdrop-filter:blur(14px); color:#d4e8f5; font-size:15px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; transition:all .14s;
-}
+#rc { position:absolute; z-index:10; right:12px; top:68px; display:flex; flex-direction:column; gap:7px; }
+.cbtn { width:40px; height:40px; border-radius:9px; background:rgba(8,16,32,.92); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(14px); color:#d4e8f5; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .14s; }
 .cbtn:hover,.cbtn.on { border-color:#f5c842; color:#f5c842; background:rgba(245,200,66,.15); }
-#hud {
-  position:absolute; z-index:10;
-  bottom:12px; left:272px; right:58px;
-  display:none; align-items:center; gap:10px; padding:7px 14px;
-}
+#hud { position:absolute; z-index:10; bottom:12px; left:272px; right:58px; display:none; align-items:center; gap:10px; padding:7px 14px; }
 .hl { font-size:9px; color:#5a7fa0; }
 .hv { font-size:13px; font-weight:700; color:#f5c842; min-width:60px; font-variant-numeric:tabular-nums; }
-#ov {
-  position:absolute; inset:0; z-index:20;
-  background:radial-gradient(ellipse at 50% 38%,#122040 0%,#060e1b 100%);
-  display:flex; align-items:center; justify-content:center; padding:20px; transition:opacity .4s;
-}
-.ucard {
-  background:rgba(9,18,36,.96); border:1.5px dashed rgba(245,200,66,.28);
-  border-radius:18px; padding:44px 52px; text-align:center; max-width:460px; width:100%;
-}
+#ov { position:absolute; inset:0; z-index:20; background:radial-gradient(ellipse at 50% 38%,#122040 0%,#060e1b 100%); display:flex; align-items:center; justify-content:center; padding:20px; transition:opacity .4s; }
+.ucard { background:rgba(9,18,36,.96); border:1.5px dashed rgba(245,200,66,.28); border-radius:18px; padding:44px 52px; text-align:center; max-width:460px; width:100%; }
 .ucard.drag { border-color:#f5c842; }
 .uico   { font-size:52px; margin-bottom:14px; }
 .utitle { font-size:22px; font-weight:700; color:#f5c842; margin-bottom:8px; letter-spacing:.05em; }
 .udesc  { font-size:12px; color:#5a7fa0; line-height:1.7; margin-bottom:22px; }
-.ubtn {
-  width:100%; background:linear-gradient(135deg,#f59b1a,#f5c842); color:#07101e;
-  border:none; border-radius:9px; padding:13px; font-size:14px; font-weight:700;
-  cursor:pointer; margin-bottom:10px; font-family:inherit;
-}
+.ubtn { width:100%; background:linear-gradient(135deg,#f59b1a,#f5c842); color:#07101e; border:none; border-radius:9px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px; font-family:inherit; }
 .ubtn:hover { filter:brightness(1.08); }
-.dbtn {
-  width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
-  border-radius:9px; color:#d4e8f5; font-size:12px; padding:11px;
-  cursor:pointer; font-family:inherit; transition:all .14s;
-}
+.dbtn { width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:9px; color:#d4e8f5; font-size:12px; padding:11px; cursor:pointer; font-family:inherit; transition:all .14s; }
 .dbtn:hover { border-color:#f5c842; color:#f5c842; }
 #fi { display:none; }
 </style>
@@ -209,9 +142,7 @@ input[type=range]::-webkit-slider-thumb {
   </div>
   <div class="card">
     <div class="sec">フライト統計</div>
-    <div id="stc" style="font-size:11px;color:#5a7fa0;text-align:center;padding:4px 0">
-      ファイルを読み込むと表示されます
-    </div>
+    <div id="stc" style="font-size:11px;color:#5a7fa0;text-align:center;padding:4px 0">ファイルを読み込むと表示されます</div>
   </div>
   <div class="card card-grow">
     <div class="sec">高度グラフ</div>
@@ -222,9 +153,9 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <div id="rc">
-  <button class="cbtn on"  id="b3d"  onclick="toggle3D()"     title="3D/2D">3D</button>
-  <button class="cbtn"     id="bFol" onclick="toggleFollow()"  title="機体追従">🎯</button>
-  <button class="cbtn"               onclick="fitAll()"         title="全体表示">⛶</button>
+  <button class="cbtn on" id="b3d"  onclick="toggle3D()"    title="3D/2D">3D</button>
+  <button class="cbtn"    id="bFol" onclick="toggleFollow()" title="機体追従">🎯</button>
+  <button class="cbtn"              onclick="fitAll()"        title="全体表示">⛶</button>
 </div>
 
 <div class="panel" id="hud">
@@ -236,16 +167,16 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <script>
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // ユーティリティ
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 function fmtTime(sec) {
   sec = Math.max(0, Math.floor(sec));
   return [Math.floor(sec/3600), Math.floor((sec%3600)/60), sec%60]
     .map(v => String(v).padStart(2,'0')).join(':');
 }
 function haversineKm(la1,lo1,la2,lo2) {
-  const R=6371, dLa=(la2-la1)*Math.PI/180, dLo=(lo2-lo1)*Math.PI/180;
+  const R=6371,dLa=(la2-la1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180;
   const a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
@@ -254,14 +185,14 @@ function totalDist(pts) {
   for(let i=1;i<pts.length;i++) d+=haversineKm(pts[i-1].lat,pts[i-1].lon,pts[i].lat,pts[i].lon);
   return d;
 }
-function altToColor(alt, minAlt, maxAlt) {
-  const t = Math.max(0, Math.min(1, (alt-minAlt)/Math.max(1,maxAlt-minAlt)));
+function altColor(alt, minAlt, maxAlt) {
+  const t = Math.max(0, Math.min(1,(alt-minAlt)/Math.max(1,maxAlt-minAlt)));
   return new Cesium.Color(t, 0.78-t*0.36, 1-t*0.86, 1.0);
 }
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // パーサー
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 function parseIGC(txt) {
   const pts=[];
   for(const line of txt.split(/\r?\n/)) {
@@ -305,9 +236,9 @@ function generateDemo() {
   return pts;
 }
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // 状態
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 let pts=[], bnds=null;
 let playhead=0, playing=false, rafId=null, prevTs=null;
 let zScale=1, trailW=3, is3D=true, followMode=false;
@@ -316,9 +247,9 @@ let frameCount=0;
 function totalDur() { return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time); }
 function headIdx()  { return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1); }
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // Cesium 初期化
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTQwNjQsImlhdCI6MTYyODIyNDY5NH0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
@@ -346,51 +277,29 @@ function setLayer(id) {
       ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
       : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maximumLevel: 19,
-    credit: new Cesium.Credit(id==='sat'?'Tiles &copy; Esri':'&copy; OpenStreetMap contributors', false),
+    credit: new Cesium.Credit(id==='sat'?'Tiles &copy; Esri':'&copy; OpenStreetMap', false),
   }));
 }
 
-// ═══════════════════════════════════════════
-// アイコン SVG
-// ═══════════════════════════════════════════
-const AIRCRAFT_IMG = 'data:image/svg+xml,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="-40 -40 80 80">'
-  // グロー
-  +'<radialGradient id="g"><stop offset="0%" stop-color="#ff6b35" stop-opacity=".5"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>'
-  +'<circle r="38" fill="url(#g)"/>'
-  // キャノピー
-  +'<path d="M-22 0 Q-16-24 0-26 Q16-24 22 0" fill="url(#cg)" stroke="#ff6b35" stroke-width="1.2"/>'
-  +'<linearGradient id="cg" x1="0" y1="-26" x2="0" y2="0" gradientUnits="userSpaceOnUse">'
-  +'<stop offset="0%" stop-color="#fff" stop-opacity=".9"/>'
-  +'<stop offset="50%" stop-color="#ff8c42" stop-opacity=".95"/>'
-  +'<stop offset="100%" stop-color="#c03010" stop-opacity="1"/>'
-  +'</linearGradient>'
-  // リブ
-  +'<line x1="-13" y1="-1" x2="-11" y2="-24" stroke="rgba(255,255,255,.25)" stroke-width=".7"/>'
-  +'<line x1="-5"  y1="-2" x2="-4"  y2="-25" stroke="rgba(255,255,255,.25)" stroke-width=".7"/>'
-  +'<line x1="5"   y1="-2" x2="4"   y2="-25" stroke="rgba(255,255,255,.25)" stroke-width=".7"/>'
-  +'<line x1="13"  y1="-1" x2="11"  y2="-24" stroke="rgba(255,255,255,.25)" stroke-width=".7"/>'
-  // ライン
-  +'<line x1="-17" y1="0" x2="0" y2="12" stroke="#ff9050" stroke-width="1.1"/>'
-  +'<line x1="-8"  y1="-2" x2="0" y2="12" stroke="#ff9050" stroke-width="1.1"/>'
-  +'<line x1="8"   y1="-2" x2="0" y2="12" stroke="#ff9050" stroke-width="1.1"/>'
-  +'<line x1="17"  y1="0"  x2="0" y2="12" stroke="#ff9050" stroke-width="1.1"/>'
-  // ハーネス
-  +'<rect x="-6" y="10" width="12" height="8" rx="2" fill="#7a1c10" stroke="#ff6b35" stroke-width=".8"/>'
-  // パイロット頭
-  +'<circle cx="0" cy="8" r="4" fill="#ff6030"/>'
-  +'<ellipse cx="1" cy="7" rx="2.2" ry="1.4" fill="rgba(120,220,255,.7)"/>'
-  // モーター
-  +'<circle cx="0" cy="20" r="8" fill="none" stroke="#ff6b35" stroke-width="1.2" stroke-dasharray="2,2"/>'
-  +'<ellipse cx="0" cy="20" rx="2" ry="7" fill="#ff8040" opacity=".85"/>'
-  +'<ellipse cx="0" cy="20" rx="7" ry="2" fill="#ff8040" opacity=".85"/>'
-  +'<circle cx="0" cy="20" r="2" fill="#ffaa60"/>'
+// ──────────────────────────────────────
+// アイコン（黄色単色 — 動作実績あり）
+// ──────────────────────────────────────
+const ICON = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48">'
+  +'<circle cx="24" cy="28" r="16" fill="rgba(245,200,66,0.18)"/>'
+  +'<path d="M8 22 Q24 6 40 22" stroke="#f5c842" stroke-width="3" fill="none" stroke-linecap="round"/>'
+  +'<line x1="12" y1="22" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<line x1="19" y1="19" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<line x1="29" y1="19" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<line x1="36" y1="22" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<circle cx="24" cy="34" r="4" fill="#f5c842"/>'
+  +'<circle cx="24" cy="35" r="6" stroke="#f5c842" stroke-width="1.5" fill="none" opacity="0.6"/>'
   +'</svg>'
 );
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // エンティティ管理
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 let trailEntities  = [];
 let markerStart    = null;
 let markerEnd      = null;
@@ -404,49 +313,45 @@ function clearEntities() {
   if(aircraftEntity) { viewer.entities.remove(aircraftEntity); aircraftEntity=null; }
 }
 
-// 全軌跡を一度だけ構築（色つきセグメント50点ごと）
 function buildTrail() {
-  trailEntities.forEach(e => viewer.entities.remove(e));
-  trailEntities = [];
+  clearEntities();
   if(!pts.length) return;
-
   const n=pts.length, SEG=40;
+
+  // 軌跡（高度付き3D・色つき）
   for(let s=0; s<n-1; s+=SEG) {
     const end = Math.min(s+SEG, n-1);
-    const positions = [];
+    const positions=[];
     for(let i=s; i<=end; i++)
       positions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon, pts[i].lat, pts[i].alt*zScale));
     const mid = pts[Math.floor((s+end)/2)];
-    const color = altToColor(mid.alt, bnds.minAlt, bnds.maxAlt);
     trailEntities.push(viewer.entities.add({
       polyline: {
         positions,
         width: trailW,
-        material: new Cesium.ColorMaterialProperty(color),
-        clampToGround: false,
+        material: new Cesium.ColorMaterialProperty(altColor(mid.alt, bnds.minAlt, bnds.maxAlt)),
+        clampToGround: false,  // 地面に張り付かせない（3D高度を維持）
       }
     }));
   }
 
-  // スタート・エンドマーカー
+  // スタート（緑）・エンド（赤）マーカー
   markerStart = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale),
-    point: { pixelSize:10, color:Cesium.Color.fromCssColorString('#00ff78'),
-             outlineColor:Cesium.Color.WHITE, outlineWidth:2 },
+    point: { pixelSize:10, color:Cesium.Color.fromCssColorString('#00ff78'), outlineColor:Cesium.Color.WHITE, outlineWidth:2 },
   });
   markerEnd = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(pts[n-1].lon, pts[n-1].lat, pts[n-1].alt*zScale),
-    point: { pixelSize:10, color:Cesium.Color.fromCssColorString('#ff3c3c'),
-             outlineColor:Cesium.Color.WHITE, outlineWidth:2 },
+    point: { pixelSize:10, color:Cesium.Color.fromCssColorString('#ff3c3c'), outlineColor:Cesium.Color.WHITE, outlineWidth:2 },
   });
 
-  // 機体アイコン
+  // 機体アイコン（ConstantPositionProperty + setValue で更新）
   const p0 = Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale);
   aircraftEntity = viewer.entities.add({
     position: new Cesium.ConstantPositionProperty(p0),
     billboard: {
-      image: AIRCRAFT_IMG,
-      width: 64, height: 64,
+      image: ICON,
+      width: 52, height: 52,
       verticalOrigin:   Cesium.VerticalOrigin.CENTER,
       horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
       scaleByDistance:  new Cesium.NearFarScalar(1e3, 1.6, 2e5, 0.6),
@@ -455,20 +360,20 @@ function buildTrail() {
     label: {
       text: Math.round(pts[0].alt)+' m',
       font: 'bold 13px sans-serif',
-      fillColor:    Cesium.Color.fromCssColorString('#ff8c42'),
+      fillColor:    Cesium.Color.fromCssColorString('#f5c842'),
       outlineColor: Cesium.Color.BLACK,
       outlineWidth: 3,
       style: Cesium.LabelStyle.FILL_AND_OUTLINE,
       verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-      pixelOffset: new Cesium.Cartesian2(0, -38),
+      pixelOffset: new Cesium.Cartesian2(0, -36),
       disableDepthTestDistance: Number.POSITIVE_INFINITY,
     }
   });
 }
 
-// 機体位置・ラベルを更新（ConstantPositionProperty.setValue を使用）
-function updateAircraft(hi) {
+function updateAircraft() {
   if(!aircraftEntity || !pts.length) return;
+  const hi  = headIdx();
   const cur = pts[hi];
   const pos = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
@@ -482,9 +387,9 @@ function updateAircraft(hi) {
   }
 }
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // 再生
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 function togglePlay() {
   if(!pts.length) return;
   playing = !playing;
@@ -502,18 +407,18 @@ function tick(ts) {
   if(!playing) return;
   if(prevTs !== null) {
     const dt = (ts-prevTs)/1000;
-    playhead = Math.min(1, playhead+(dt*+document.getElementById('speedSel').value)/totalDur());
+    playhead = Math.min(1, playhead + (dt * +document.getElementById('speedSel').value) / totalDur());
   }
   prevTs = ts;
   frameCount++;
 
   const hi = headIdx();
   document.getElementById('pf').style.width = (playhead*100)+'%';
-  document.getElementById('cT').textContent = fmtTime(pts[hi].time-pts[0].time);
+  document.getElementById('cT').textContent = fmtTime(pts[hi].time - pts[0].time);
 
-  updateAircraft(hi);
+  updateAircraft();
   updateHUD(hi);
-  if(frameCount%30===0) drawAltChart();
+  if(frameCount % 30 === 0) drawAltChart();
 
   if(playhead >= 1) {
     playing=false; rafId=null;
@@ -541,19 +446,19 @@ function updateHUD(hi) {
   }
 }
 
-document.getElementById('pbar').addEventListener('click', e=>{
+document.getElementById('pbar').addEventListener('click', e => {
   if(!pts.length) return;
   const r=e.currentTarget.getBoundingClientRect();
   playhead=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
   const hi=headIdx();
   document.getElementById('pf').style.width=(playhead*100)+'%';
   document.getElementById('cT').textContent=fmtTime(pts[hi].time-pts[0].time);
-  updateAircraft(hi); drawAltChart(); updateHUD(hi);
+  updateAircraft(); drawAltChart(); updateHUD(hi);
 });
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // 高度グラフ
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 function drawAltChart() {
   const c=document.getElementById('altCvs');
   if(!c.offsetWidth||!c.offsetHeight) return;
@@ -580,16 +485,16 @@ function drawAltChart() {
   ctx.strokeStyle='rgba(245,200,66,.9)'; ctx.lineWidth=2*dpr; ctx.stroke();
 }
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // カメラ・設定
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 function setZScale(v) {
   zScale=v; document.getElementById('zvl').textContent='×'+v;
-  if(pts.length) { clearEntities(); buildTrail(); updateAircraft(headIdx()); }
+  if(pts.length) { buildTrail(); updateAircraft(); }
 }
 function setWidth(v) {
   trailW=v; document.getElementById('wvl').textContent=v+'px';
-  if(pts.length) { clearEntities(); buildTrail(); updateAircraft(headIdx()); }
+  if(pts.length) { buildTrail(); updateAircraft(); }
 }
 function toggle3D() {
   is3D=!is3D;
@@ -610,15 +515,14 @@ function fitAll() {
   );
 }
 
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 // データ読み込み
-// ═══════════════════════════════════════════
+// ──────────────────────────────────────
 function loadFlightData(data) {
   if(!data||data.length<2){alert('有効なGPSデータが見つかりませんでした。');return;}
   playing=false;
   if(rafId){cancelAnimationFrame(rafId);rafId=null;}
 
-  clearEntities();
   pts=data.filter(d=>d.lat||d.lon);
   playhead=0; prevTs=null; frameCount=0;
   document.getElementById('playBtn').textContent='▶';
@@ -648,7 +552,7 @@ function loadFlightData(data) {
   document.getElementById('hud').style.display='flex';
 
   buildTrail();
-  updateAircraft(0);
+  updateAircraft();
   updateHUD(0);
 
   const ov=document.getElementById('ov');
@@ -673,7 +577,6 @@ function resetFlight() {
   ov.style.display='flex'; ov.style.opacity='1'; ov.style.pointerEvents='';
 }
 
-// ファイル入力
 document.getElementById('fi').addEventListener('change',e=>{
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
