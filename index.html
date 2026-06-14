@@ -11,12 +11,7 @@
 * { margin:0; padding:0; }
 html,body,#cesiumContainer { width:100%; height:100%; overflow:hidden; }
 body { background:#07101e; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; color:#d4e8f5; }
-
-.panel {
-  position:absolute; z-index:10;
-  background:rgba(8,16,32,0.92); border:1px solid rgba(255,255,255,0.12);
-  border-radius:11px; backdrop-filter:blur(16px); color:#d4e8f5;
-}
+.panel { position:absolute; z-index:10; background:rgba(8,16,32,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:11px; backdrop-filter:blur(16px); color:#d4e8f5; }
 #header { top:12px; left:12px; right:12px; display:flex; align-items:center; gap:12px; padding:9px 16px; }
 .logo { font-size:22px; }
 .app-name { font-size:16px; font-weight:700; color:#f5c842; letter-spacing:.06em; }
@@ -24,7 +19,6 @@ body { background:#07101e; font-family:-apple-system,BlinkMacSystemFont,'Segoe U
 #hstats { display:none; gap:14px; margin-left:auto; }
 .hs .v { font-size:14px; font-weight:700; color:#f5c842; font-variant-numeric:tabular-nums; }
 .hs .l { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.07em; }
-
 #side { position:absolute; z-index:10; left:12px; top:68px; bottom:12px; width:248px; display:flex; flex-direction:column; gap:8px; }
 .card { background:rgba(8,16,32,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:12px 14px; backdrop-filter:blur(16px); flex-shrink:0; }
 .card-grow { flex:1; min-height:0; display:flex; flex-direction:column; }
@@ -33,7 +27,7 @@ body { background:#07101e; font-family:-apple-system,BlinkMacSystemFont,'Segoe U
 .lbtns { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
 .lbtn { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:6px; padding:7px 4px; color:#d4e8f5; font-size:10px; cursor:pointer; text-align:center; transition:all .14s; font-family:inherit; }
 .lbtn:hover { border-color:#f5c842; color:#f5c842; }
-.lbtn.on    { background:rgba(245,200,66,.18); border-color:#f5c842; color:#f5c842; }
+.lbtn.on { background:rgba(245,200,66,.18); border-color:#f5c842; color:#f5c842; }
 .prow { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .pbtn { width:38px; height:38px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#f59b1a,#f5c842); border:none; color:#07101e; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .1s; }
 .pbtn:hover { transform:scale(1.08); }
@@ -55,25 +49,21 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 .sbox .bl { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
 #altCvs { width:100%; flex:1; display:block; cursor:crosshair; min-height:40px; }
 .legrow { display:flex; align-items:center; gap:5px; margin-top:5px; flex-shrink:0; }
-.legbar { flex:1; height:3px; border-radius:2px; background:linear-gradient(90deg,#00d4ff,#ff6b35); }
 .legl { font-size:9px; color:#5a7fa0; }
 .newbtn { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:6px; color:#5a7fa0; font-size:10px; padding:7px; cursor:pointer; margin-top:7px; font-family:inherit; flex-shrink:0; transition:all .14s; }
 .newbtn:hover { color:#f5c842; border-color:#f5c842; }
-
 #rc { position:absolute; z-index:10; right:12px; top:68px; display:flex; flex-direction:column; gap:7px; }
 .cbtn { width:40px; height:40px; border-radius:9px; background:rgba(8,16,32,.92); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(14px); color:#d4e8f5; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .14s; }
 .cbtn:hover,.cbtn.on { border-color:#f5c842; color:#f5c842; background:rgba(245,200,66,.15); }
-
 #hud { position:absolute; z-index:10; bottom:12px; left:272px; right:58px; display:none; align-items:center; gap:10px; padding:7px 14px; }
 .hl { font-size:9px; color:#5a7fa0; }
 .hv { font-size:13px; font-weight:700; color:#f5c842; min-width:60px; font-variant-numeric:tabular-nums; }
-
 #ov { position:absolute; inset:0; z-index:20; background:radial-gradient(ellipse at 50% 38%,#122040 0%,#060e1b 100%); display:flex; align-items:center; justify-content:center; padding:20px; transition:opacity .4s; }
 .ucard { background:rgba(9,18,36,.96); border:1.5px dashed rgba(245,200,66,.28); border-radius:18px; padding:44px 52px; text-align:center; max-width:460px; width:100%; }
 .ucard.drag { border-color:#f5c842; }
-.uico   { font-size:52px; margin-bottom:14px; }
+.uico { font-size:52px; margin-bottom:14px; }
 .utitle { font-size:22px; font-weight:700; color:#f5c842; margin-bottom:8px; letter-spacing:.05em; }
-.udesc  { font-size:12px; color:#5a7fa0; line-height:1.7; margin-bottom:22px; }
+.udesc { font-size:12px; color:#5a7fa0; line-height:1.7; margin-bottom:22px; }
 .ubtn { width:100%; background:linear-gradient(135deg,#f59b1a,#f5c842); color:#07101e; border:none; border-radius:9px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px; font-family:inherit; }
 .ubtn:hover { filter:brightness(1.08); }
 .dbtn { width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); border-radius:9px; color:#d4e8f5; font-size:12px; padding:11px; cursor:pointer; font-family:inherit; transition:all .14s; }
@@ -172,10 +162,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 </div>
 
 <script>
-// ── Cesium（test_cesium.html と同じ初期化）
+// ── Cesium 初期化
 Cesium.Ion.defaultAccessToken = '';
 
-// Globe を手動作成してESRIタイルを直接渡す（IonのWorld Imageryを完全回避）
 const esriProvider = new Cesium.UrlTemplateImageryProvider({
   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   maximumLevel: 19,
@@ -199,16 +188,25 @@ viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
 
-// ズーム・移動時にもアイコンサイズを即時更新
-// 追従中にユーザーがドラッグした場合もheading/pitchを記憶
+// ── 状態変数
+let pts=[], bnds=null, playhead=0, playing=false, rafId=null, prevTs=null;
+let zScale=1, trailW=3, is3D=true, followMode=false, frameCount=0;
+let followDistance=8000, followHeading=0, followPitch=Cesium.Math.toRadians(-35);
+let trailEntities=[], markerStart=null, markerEnd=null, aircraftEntity=null, tailEntity=null;
+
+const TAIL_SEC = 8;
+
+function totalDur(){ return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time); }
+function headIdx(){ return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1); }
+
+// ── カメラ変化イベント
 viewer.camera.changed.addEventListener(() => {
   if(aircraftEntity && pts.length) {
     const camHeight = viewer.camera.positionCartographic.height;
     const minH=500, maxH=200000, minS=0.6, maxS=0.08;
-    const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
-    aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
+    const t = Math.max(0, Math.min(1, (Math.log(camHeight)-Math.log(minH))/(Math.log(maxH)-Math.log(minH))));
+    aircraftEntity.billboard.scale = minS + (maxS-minS)*t;
   }
-  // 常にheading/pitchを記憶（追従中のドラッグも反映）
   followHeading = viewer.camera.heading;
   followPitch   = viewer.camera.pitch;
 });
@@ -220,7 +218,7 @@ function fmtTime(sec) {
     .map(v => String(v).padStart(2,'0')).join(':');
 }
 function haversineKm(la1,lo1,la2,lo2) {
-  const R=6371,dLa=(la2-la1)*Math.PI/180,dLo=(lo2-lo1)*Math.PI/180;
+  const R=6371, dLa=(la2-la1)*Math.PI/180, dLo=(lo2-lo1)*Math.PI/180;
   const a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
@@ -229,36 +227,26 @@ function totalDist(pts) {
   for(let i=1;i<pts.length;i++) d+=haversineKm(pts[i-1].lat,pts[i-1].lon,pts[i].lat,pts[i].lon);
   return d;
 }
-// 経過時間（秒）で20色に色分け（虹色グラデーション）
-const TRAIL_COLORS = [
-  new Cesium.Color(1.0, 0.0, 0.2, 1.0),  //  1 赤
-  new Cesium.Color(1.0, 0.2, 0.0, 1.0),  //  2 赤橙
-  new Cesium.Color(1.0, 0.4, 0.0, 1.0),  //  3 橙
-  new Cesium.Color(1.0, 0.6, 0.0, 1.0),  //  4 橙黄
-  new Cesium.Color(1.0, 0.8, 0.0, 1.0),  //  5 黄橙
-  new Cesium.Color(1.0, 1.0, 0.0, 1.0),  //  6 黄
-  new Cesium.Color(0.7, 1.0, 0.0, 1.0),  //  7 黄緑
-  new Cesium.Color(0.4, 1.0, 0.0, 1.0),  //  8 黄緑
-  new Cesium.Color(0.0, 1.0, 0.0, 1.0),  //  9 緑
-  new Cesium.Color(0.0, 1.0, 0.4, 1.0),  // 10 緑シアン
-  new Cesium.Color(0.0, 1.0, 0.7, 1.0),  // 11 シアン緑
-  new Cesium.Color(0.0, 1.0, 1.0, 1.0),  // 12 シアン
-  new Cesium.Color(0.0, 0.7, 1.0, 1.0),  // 13 シアン青
-  new Cesium.Color(0.0, 0.4, 1.0, 1.0),  // 14 青シアン
-  new Cesium.Color(0.0, 0.0, 1.0, 1.0),  // 15 青
-  new Cesium.Color(0.3, 0.0, 1.0, 1.0),  // 16 青紫
-  new Cesium.Color(0.6, 0.0, 1.0, 1.0),  // 17 紫青
-  new Cesium.Color(0.8, 0.0, 1.0, 1.0),  // 18 紫
-  new Cesium.Color(1.0, 0.0, 0.8, 1.0),  // 19 紫赤
-  new Cesium.Color(1.0, 0.0, 0.5, 1.0),  // 20 赤紫
-];
 
+// ── 20色
+const TRAIL_COLORS = [
+  new Cesium.Color(1.0,0.0,0.2,1.0), new Cesium.Color(1.0,0.2,0.0,1.0),
+  new Cesium.Color(1.0,0.4,0.0,1.0), new Cesium.Color(1.0,0.6,0.0,1.0),
+  new Cesium.Color(1.0,0.8,0.0,1.0), new Cesium.Color(1.0,1.0,0.0,1.0),
+  new Cesium.Color(0.7,1.0,0.0,1.0), new Cesium.Color(0.4,1.0,0.0,1.0),
+  new Cesium.Color(0.0,1.0,0.0,1.0), new Cesium.Color(0.0,1.0,0.4,1.0),
+  new Cesium.Color(0.0,1.0,0.7,1.0), new Cesium.Color(0.0,1.0,1.0,1.0),
+  new Cesium.Color(0.0,0.7,1.0,1.0), new Cesium.Color(0.0,0.4,1.0,1.0),
+  new Cesium.Color(0.0,0.0,1.0,1.0), new Cesium.Color(0.3,0.0,1.0,1.0),
+  new Cesium.Color(0.6,0.0,1.0,1.0), new Cesium.Color(0.8,0.0,1.0,1.0),
+  new Cesium.Color(1.0,0.0,0.8,1.0), new Cesium.Color(1.0,0.0,0.5,1.0),
+];
 function timeColor(ptIndex) {
   const startTime = pts[0].time;
   const totalTime = pts[pts.length-1].time - startTime;
   const elapsed   = pts[ptIndex].time - startTime;
-  const t = elapsed / Math.max(1, totalTime);          // 0.0〜1.0
-  const colorIdx = Math.min(Math.floor(t * 20), 19);  // 0〜19
+  const t = elapsed / Math.max(1, totalTime);
+  const colorIdx = Math.min(Math.floor(t*20), 19);
   return TRAIL_COLORS[colorIdx];
 }
 
@@ -302,14 +290,6 @@ function generateDemo() {
   return pts;
 }
 
-// ── 状態
-let pts=[],bnds=null,playhead=0,playing=false,rafId=null,prevTs=null;
-let zScale=1,trailW=3,is3D=true,followMode=false,frameCount=0;
-let followDistance=8000;
-let followHeading=0, followPitch=Cesium.Math.toRadians(-35);
-function totalDur(){return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time);}
-function headIdx(){return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1);}
-
 // ── 地図レイヤー切替
 function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
@@ -325,10 +305,6 @@ function setLayer(id) {
 }
 
 // ── エンティティ
-let trailEntities=[],markerStart=null,markerEnd=null,aircraftEntity=null;
-let tailEntity=null;  // 直近数秒の軌跡（白色）
-const TAIL_SEC = 8;   // テールの長さ（秒）
-
 function clearEntities() {
   trailEntities.forEach(e=>viewer.entities.remove(e)); trailEntities=[];
   if(markerStart){viewer.entities.remove(markerStart);markerStart=null;}
@@ -336,6 +312,7 @@ function clearEntities() {
   if(aircraftEntity){viewer.entities.remove(aircraftEntity);aircraftEntity=null;}
   if(tailEntity){viewer.entities.remove(tailEntity);tailEntity=null;}
 }
+
 const ICON='data:image/svg+xml,'+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="-60 -40 120 100">'
   +'<defs><clipPath id="cp"><path d="M-55,0 Q-42,-34 0,-40 Q42,-34 55,0 Q42,-14 0,-20 Q-42,-14 -55,0 Z"/></clipPath></defs>'
@@ -363,35 +340,35 @@ const ICON='data:image/svg+xml,'+encodeURIComponent(
   +'<ellipse cx="1" cy="33" rx="3" ry="1.8" fill="rgba(180,220,255,0.75)"/>'
   +'</svg>'
 );
+
 function buildTrail() {
   clearEntities();
   if(!pts.length) return;
-  const n=pts.length, SEG=Math.max(2, Math.floor(n/100));
+  const n=pts.length, SEG=Math.max(2,Math.floor(n/100));
   for(let s=0;s<n-1;s+=SEG){
-    const end=Math.min(s+SEG,n-1),positions=[];
+    const end=Math.min(s+SEG,n-1), positions=[];
     for(let i=s;i<=end;i++)
       positions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
-    const midIdx = Math.floor((s+end)/2);
+    const midIdx=Math.floor((s+end)/2);
     trailEntities.push(viewer.entities.add({
       polyline:{positions,width:trailW,
         material:new Cesium.ColorMaterialProperty(timeColor(midIdx)),
         clampToGround:false}
     }));
   }
-
-  // 直近テール（白色・毎フレーム更新）
-  const initTailPos = new Cesium.ConstantProperty(
-    [Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale),
-     Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale)]
-  );
+  // 直近テール（白色）
   tailEntity = viewer.entities.add({
     polyline:{
-      positions: initTailPos,
-      width: trailW + 1,
-      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0, 1.0, 1.0, 0.95)),
-      clampToGround: false,
+      positions: new Cesium.ConstantProperty([
+        Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+        Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+      ]),
+      width: trailW+1,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,1.0,0.95)),
+      clampToGround:false,
     }
   });
+  // スタート/エンドマーカー
   markerStart=viewer.entities.add({
     position:Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
     point:{pixelSize:10,color:Cesium.Color.fromCssColorString('#00ff78'),outlineColor:Cesium.Color.WHITE,outlineWidth:2}
@@ -400,6 +377,7 @@ function buildTrail() {
     position:Cesium.Cartesian3.fromDegrees(pts[n-1].lon,pts[n-1].lat,pts[n-1].alt*zScale),
     point:{pixelSize:10,color:Cesium.Color.fromCssColorString('#ff3c3c'),outlineColor:Cesium.Color.WHITE,outlineWidth:2}
   });
+  // 機体アイコン
   const p0=Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale);
   aircraftEntity=viewer.entities.add({
     position:new Cesium.ConstantPositionProperty(p0),
@@ -412,64 +390,48 @@ function buildTrail() {
       pixelOffset:new Cesium.Cartesian2(0,-36),disableDepthTestDistance:Number.POSITIVE_INFINITY}
   });
 }
+
 function updateAircraft() {
   if(!aircraftEntity||!pts.length) return;
-  const hi = headIdx();
+  const hi=headIdx();
   const cur=pts[hi];
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
-
-  // 直近テール座標を更新
-  if(tailEntity && hi > 0) {
-    const curTime = cur.time;
-    let tailStart = hi;
-    for(let i=hi; i>=0; i--) {
-      tailStart = i;
-      if(pts[i].time <= curTime - TAIL_SEC) break;
-    }
-    const tailPositions = [];
-    for(let i=tailStart; i<=hi; i++)
-      tailPositions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon, pts[i].lat, pts[i].alt*zScale));
-    if(tailPositions.length >= 2)
-      tailEntity.polyline.positions = new Cesium.ConstantProperty(tailPositions);
+  // テール更新
+  if(tailEntity && hi>0) {
+    let tailStart=hi;
+    for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
+    const tp=[];
+    for(let i=tailStart;i<=hi;i++)
+      tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
+    if(tp.length>=2) tailEntity.polyline.positions=new Cesium.ConstantProperty(tp);
   }
-
-  // カメラ高度に応じてアイコンサイズを動的に変更
-  const camHeight = viewer.camera.positionCartographic.height;
-  const minH=500, maxH=200000, minS=0.6, maxS=0.08;
-  const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
-  aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
-
-  // 追従：記憶したheading/pitchを維持しながら機体位置に追従
-  if(followMode) {
-    viewer.camera.lookAt(
-      pos,
-      new Cesium.HeadingPitchRange(
-        followHeading,
-        followPitch,
-        followDistance
-      )
-    );
+  // アイコンスケール
+  const camHeight=viewer.camera.positionCartographic.height;
+  const minH=500,maxH=200000,minS=0.6,maxS=0.08;
+  const t=Math.max(0,Math.min(1,(Math.log(camHeight)-Math.log(minH))/(Math.log(maxH)-Math.log(minH))));
+  aircraftEntity.billboard.scale=minS+(maxS-minS)*t;
+  // 追従
+  if(followMode){
+    viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
   }
 }
 
 function toggleFollow() {
   followMode=!followMode;
   document.getElementById('bFol').classList.toggle('on',followMode);
-  if(followMode) {
-    // 追従ON時：現在のheading/pitchと距離を記憶
-    followHeading = viewer.camera.heading;
-    followPitch   = viewer.camera.pitch;
-    viewer.trackedEntity = undefined;
-    if(aircraftEntity&&pts.length) {
+  if(followMode){
+    followHeading=viewer.camera.heading;
+    followPitch=viewer.camera.pitch;
+    viewer.trackedEntity=undefined;
+    if(aircraftEntity&&pts.length){
       const cur=pts[headIdx()];
       const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
-      followDistance = Cesium.Cartesian3.distance(viewer.camera.position, pos);
-      followDistance = Math.max(3000, Math.min(followDistance, 50000));
+      followDistance=Cesium.Cartesian3.distance(viewer.camera.position,pos);
+      followDistance=Math.max(3000,Math.min(followDistance,50000));
     }
   } else {
-    // 追従OFF：カメラロック解除
     viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   }
 }
@@ -484,19 +446,22 @@ function togglePlay() {
 }
 function tick(ts) {
   if(!playing) return;
-  if(prevTs!==null){const dt=(ts-prevTs)/1000;playhead=Math.min(1,playhead+(dt*+document.getElementById('speedSel').value)/totalDur());}
-  prevTs=ts;frameCount++;
+  if(prevTs!==null){
+    const dt=(ts-prevTs)/1000;
+    playhead=Math.min(1,playhead+(dt*+document.getElementById('speedSel').value)/totalDur());
+  }
+  prevTs=ts; frameCount++;
   const hi=headIdx();
   document.getElementById('pf').style.width=(playhead*100)+'%';
   document.getElementById('cT').textContent=fmtTime(pts[hi].time-pts[0].time);
-  updateAircraft();updateHUD(hi);
-  if(frameCount%30===0)drawAltChart();
+  updateAircraft(); updateHUD(hi);
+  if(frameCount%30===0) drawAltChart();
   if(playhead>=1){playing=false;rafId=null;document.getElementById('playBtn').textContent='▶';drawAltChart();return;}
   rafId=requestAnimationFrame(tick);
 }
 function updateHUD(hi) {
   if(!pts.length) return;
-  if(hi===undefined)hi=headIdx();
+  if(hi===undefined) hi=headIdx();
   const cur=pts[hi];
   document.getElementById('bAlt').textContent=Math.round(cur.alt)+' m';
   if(hi>0){
@@ -509,69 +474,70 @@ function updateHUD(hi) {
   }
 }
 document.getElementById('pbar').addEventListener('click',e=>{
-  if(!pts.length)return;
+  if(!pts.length) return;
   const r=e.currentTarget.getBoundingClientRect();
   playhead=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
   const hi=headIdx();
   document.getElementById('pf').style.width=(playhead*100)+'%';
   document.getElementById('cT').textContent=fmtTime(pts[hi].time-pts[0].time);
-  updateAircraft();drawAltChart();updateHUD(hi);
+  updateAircraft(); drawAltChart(); updateHUD(hi);
 });
 
 // ── 高度グラフ
 function drawAltChart() {
   const c=document.getElementById('altCvs');
-  if(!c.offsetWidth||!c.offsetHeight)return;
+  if(!c.offsetWidth||!c.offsetHeight) return;
   const dpr=window.devicePixelRatio||1;
-  c.width=c.offsetWidth*dpr;c.height=c.offsetHeight*dpr;
+  c.width=c.offsetWidth*dpr; c.height=c.offsetHeight*dpr;
   const ctx=c.getContext('2d'),W=c.width,H=c.height,p=3;
   ctx.clearRect(0,0,W,H);
-  if(!pts.length)return;
+  if(!pts.length) return;
   const n=pts.length,minA=bnds.minAlt,rng=Math.max(1,bnds.maxAlt-minA);
-  const xOf=i=>p+(i/(n-1))*(W-p*2),yOf=a=>H-p-((a-minA)/rng)*(H-p*2);
+  const xOf=i=>p+(i/(n-1))*(W-p*2), yOf=a=>H-p-((a-minA)/rng)*(H-p*2);
   const grd=ctx.createLinearGradient(0,0,W,0);
-  grd.addColorStop(0,'#00d4ff');grd.addColorStop(1,'#ff6b35');
-  ctx.beginPath();ctx.moveTo(p,H-p);
+  grd.addColorStop(0,'#00d4ff'); grd.addColorStop(1,'#ff6b35');
+  ctx.beginPath(); ctx.moveTo(p,H-p);
   pts.forEach((d,i)=>i?ctx.lineTo(xOf(i),yOf(d.alt)):ctx.moveTo(xOf(i),yOf(d.alt)));
-  ctx.lineTo(W-p,H-p);ctx.closePath();ctx.fillStyle='rgba(0,212,255,.1)';ctx.fill();
+  ctx.lineTo(W-p,H-p); ctx.closePath(); ctx.fillStyle='rgba(0,212,255,.1)'; ctx.fill();
   ctx.beginPath();
   pts.forEach((d,i)=>i?ctx.lineTo(xOf(i),yOf(d.alt)):ctx.moveTo(xOf(i),yOf(d.alt)));
-  ctx.strokeStyle=grd;ctx.lineWidth=1.5*dpr;ctx.stroke();
+  ctx.strokeStyle=grd; ctx.lineWidth=1.5*dpr; ctx.stroke();
   const hx=xOf(headIdx());
-  ctx.beginPath();ctx.moveTo(hx,0);ctx.lineTo(hx,H);
-  ctx.strokeStyle='rgba(245,200,66,.9)';ctx.lineWidth=2*dpr;ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(hx,0); ctx.lineTo(hx,H);
+  ctx.strokeStyle='rgba(245,200,66,.9)'; ctx.lineWidth=2*dpr; ctx.stroke();
 }
 
-// ── カメラ
-function setZScale(v){zScale=v;document.getElementById('zvl').textContent='×'+v;if(pts.length){buildTrail();updateAircraft();}}
+// ── カメラ操作
 function setWidth(v){trailW=v;document.getElementById('wvl').textContent=v+'px';if(pts.length){buildTrail();updateAircraft();}}
 function toggle3D(){is3D=!is3D;document.getElementById('b3d').classList.toggle('on',is3D);is3D?viewer.scene.morphTo3D(0.5):viewer.scene.morphTo2D(0.5);}
 function fitAll(){
-  if(!pts.length)return;
+  if(!pts.length) return;
   viewer.camera.flyToBoundingSphere(
     Cesium.BoundingSphere.fromPoints(pts.map(p=>Cesium.Cartesian3.fromDegrees(p.lon,p.lat,p.alt*zScale))),
     {duration:1.5,offset:new Cesium.HeadingPitchRange(0,Cesium.Math.toRadians(-40),0)}
   );
 }
 
-// 追従中のホイールズームを followDistance に反映
-viewer.scene.canvas.addEventListener('wheel', e => {
+// ホイールズーム（追従中）
+viewer.scene.canvas.addEventListener('wheel',e=>{
   if(!followMode) return;
-  followDistance *= e.deltaY > 0 ? 1.15 : 0.87;
-  followDistance = Math.max(3000, Math.min(followDistance, 100000));
-}, { passive: true });
+  followDistance*=e.deltaY>0?1.15:0.87;
+  followDistance=Math.max(3000,Math.min(followDistance,100000));
+},{passive:true});
 
 // ── データ読み込み
 function loadFlightData(data) {
   if(!data||data.length<2){alert('有効なGPSデータが見つかりませんでした。');return;}
-  playing=false;if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  playing=false; if(rafId){cancelAnimationFrame(rafId);rafId=null;}
   pts=data.filter(d=>d.lat||d.lon);
-  playhead=0;prevTs=null;frameCount=0;
+  playhead=0; prevTs=null; frameCount=0;
   document.getElementById('playBtn').textContent='▶';
-  bnds={minLat:Math.min(...pts.map(d=>d.lat)),maxLat:Math.max(...pts.map(d=>d.lat)),
+  bnds={
+    minLat:Math.min(...pts.map(d=>d.lat)),maxLat:Math.max(...pts.map(d=>d.lat)),
     minLon:Math.min(...pts.map(d=>d.lon)),maxLon:Math.max(...pts.map(d=>d.lon)),
-    minAlt:Math.min(...pts.map(d=>d.alt)),maxAlt:Math.max(...pts.map(d=>d.alt))};
-  const dur=totalDur(),dist=totalDist(pts);
+    minAlt:Math.min(...pts.map(d=>d.alt)),maxAlt:Math.max(...pts.map(d=>d.alt)),
+  };
+  const dur=totalDur(), dist=totalDist(pts);
   document.getElementById('hA').textContent=Math.round(bnds.maxAlt);
   document.getElementById('hD').textContent=dist.toFixed(1);
   document.getElementById('hT').textContent=fmtTime(dur);
@@ -588,15 +554,17 @@ function loadFlightData(data) {
     <div class="sbox"><div class="bv">${pts.length}</div><div class="bl">GPS点数</div></div>
   </div>`;
   document.getElementById('hud').style.display='flex';
-  buildTrail();updateAircraft();updateHUD(0);
+  buildTrail(); updateAircraft(); updateHUD(0);
   const ov=document.getElementById('ov');
-  ov.style.opacity='0';ov.style.pointerEvents='none';
+  ov.style.opacity='0'; ov.style.pointerEvents='none';
   setTimeout(()=>{ov.style.display='none';},420);
   setTimeout(()=>{fitAll();drawAltChart();},300);
 }
+
 function resetFlight() {
-  playing=false;if(rafId){cancelAnimationFrame(rafId);rafId=null;}
-  clearEntities();pts=[];bnds=null;playhead=0;prevTs=null;frameCount=0;
+  playing=false; if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  clearEntities();
+  pts=[]; bnds=null; playhead=0; prevTs=null; frameCount=0;
   document.getElementById('hstats').style.display='none';
   document.getElementById('hud').style.display='none';
   document.getElementById('pf').style.width='0%';
@@ -605,21 +573,21 @@ function resetFlight() {
   document.getElementById('stc').innerHTML='<div style="font-size:11px;color:#5a7fa0;text-align:center;padding:4px 0">ファイルを読み込むと表示されます</div>';
   document.getElementById('altCvs').getContext('2d').clearRect(0,0,9999,9999);
   const ov=document.getElementById('ov');
-  ov.style.display='flex';ov.style.opacity='1';ov.style.pointerEvents='';
+  ov.style.display='flex'; ov.style.opacity='1'; ov.style.pointerEvents='';
 }
 
 document.getElementById('fi').addEventListener('change',e=>{
-  const f=e.target.files[0];if(!f)return;
+  const f=e.target.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=ev=>loadFlightData(parseAuto(ev.target.result,f.name));
-  r.readAsText(f);e.target.value='';
+  r.readAsText(f); e.target.value='';
 });
 const dz=document.getElementById('dz');
 document.body.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
 document.body.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 document.body.addEventListener('drop',e=>{
-  e.preventDefault();dz.classList.remove('drag');
-  const f=e.dataTransfer.files[0];if(!f)return;
+  e.preventDefault(); dz.classList.remove('drag');
+  const f=e.dataTransfer.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=ev=>loadFlightData(parseAuto(ev.target.result,f.name));
   r.readAsText(f);
