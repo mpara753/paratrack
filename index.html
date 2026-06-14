@@ -427,7 +427,9 @@ function buildFullTrail() {
   if(fullTrailEntity){ viewer.entities.remove(fullTrailEntity); fullTrailEntity=null; }
   fullTrailEntity = viewer.entities.add({
     polyline:{
-      positions: pts.map(p=>Cesium.Cartesian3.fromDegrees(p.lon,p.lat,p.alt*zScale)),
+      positions: new Cesium.ConstantProperty(
+        pts.map(p=>Cesium.Cartesian3.fromDegrees(p.lon,p.lat,p.alt*zScale))
+      ),
       width: Math.max(1,trailW*0.4),
       material: new Cesium.ColorMaterialProperty(new Cesium.Color(0.4,0.65,1.0,0.22)),
       clampToGround:false,
@@ -476,14 +478,14 @@ function renderCesium() {
   if(!tailEntity) {
     tailEntity = viewer.entities.add({
       polyline:{
-        positions: tailPositions,
+        positions: new Cesium.ConstantProperty(tailPositions),
         width: trailW,
         material: new Cesium.ColorMaterialProperty(tailColor),
         clampToGround: false,
       }
     });
   } else {
-    tailEntity.polyline.positions = tailPositions;
+    tailEntity.polyline.positions = new Cesium.ConstantProperty(tailPositions);
     tailEntity.polyline.material  = new Cesium.ColorMaterialProperty(tailColor);
   }
 
@@ -513,7 +515,7 @@ function renderCesium() {
       }
     });
   } else {
-    aircraftEntity.position = cPos;
+    aircraftEntity.position = new Cesium.ConstantPositionProperty(cPos);
   }
   aircraftEntity.label.text = Math.round(cur.alt)+' m';
 
