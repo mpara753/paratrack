@@ -439,7 +439,7 @@ function toggleFollow() {
       const cur=pts[headIdx()];
       const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
       followDistance=Cesium.Cartesian3.distance(viewer.camera.position,pos);
-      followDistance=Math.max(3000,Math.min(followDistance,50000));
+      followDistance=Math.max(200,Math.min(followDistance,50000));
     }
   } else {
     viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
@@ -532,7 +532,7 @@ function fitAll(){
 viewer.scene.canvas.addEventListener('wheel',e=>{
   if(!followMode) return;
   followDistance*=e.deltaY>0?1.15:0.87;
-  followDistance=Math.max(3000,Math.min(followDistance,100000));
+  followDistance=Math.max(200,Math.min(followDistance,100000));
 },{passive:true});
 
 // ── データ読み込み
