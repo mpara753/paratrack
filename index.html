@@ -151,7 +151,14 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
   <div class="card card-grow">
     <div class="sec">高度グラフ</div>
     <canvas id="altCvs"></canvas>
-    <div class="legrow"><span class="legl">低</span><div class="legbar"></div><span class="legl">高</span></div>
+    <div class="legrow">
+      <span class="legl" style="color:#00ccff">●</span>
+      <span class="legl" style="color:#00ff66">●</span>
+      <span class="legl" style="color:#ffe600">●</span>
+      <span class="legl" style="color:#ff8000">●</span>
+      <span class="legl" style="color:#ff1a33">●</span>
+      <span class="legl" style="margin-left:4px">経過時間（早→遅）</span>
+    </div>
     <button class="newbtn" onclick="resetFlight()">↩ 別のフライトを読み込む</button>
   </div>
 </div>
@@ -209,9 +216,19 @@ function totalDist(pts) {
   for(let i=1;i<pts.length;i++) d+=haversineKm(pts[i-1].lat,pts[i-1].lon,pts[i].lat,pts[i].lon);
   return d;
 }
-function altColor(alt,minAlt,maxAlt) {
-  const t=Math.max(0,Math.min(1,(alt-minAlt)/Math.max(1,maxAlt-minAlt)));
-  return new Cesium.Color(t,0.78-t*0.36,1-t*0.86,1.0);
+// 経過時間で5色に色分け
+const TRAIL_COLORS = [
+  new Cesium.Color(0.0, 0.8, 1.0, 1.0),  // シアン
+  new Cesium.Color(0.0, 1.0, 0.4, 1.0),  // グリーン
+  new Cesium.Color(1.0, 0.9, 0.0, 1.0),  // イエロー
+  new Cesium.Color(1.0, 0.5, 0.0, 1.0),  // オレンジ
+  new Cesium.Color(1.0, 0.1, 0.2, 1.0),  // レッド
+];
+
+function timeColor(idx, total) {
+  const t = idx / Math.max(1, total - 1);        // 0.0 〜 1.0
+  const colorIdx = Math.min(Math.floor(t * 5), 4); // 0〜4
+  return TRAIL_COLORS[colorIdx];
 }
 
 // ── パーサー
@@ -306,7 +323,7 @@ function buildTrail() {
     const mid=pts[Math.floor((s+end)/2)];
     trailEntities.push(viewer.entities.add({
       polyline:{positions,width:trailW,
-        material:new Cesium.ColorMaterialProperty(altColor(mid.alt,bnds.minAlt,bnds.maxAlt)),
+        material:new Cesium.ColorMaterialProperty(timeColor(Math.floor((s+end)/2), n)),
         clampToGround:false}
     }));
   }
