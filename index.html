@@ -136,10 +136,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
   <div class="card">
     <div class="sec">表示設定</div>
     <div class="sg">
-      <div class="sr"><span class="sl">高度強調</span><span class="sv" id="zvl">×1</span></div>
-      <input type="range" min="1" max="10" value="1" step="0.5" oninput="setZScale(+this.value)">
-    </div>
-    <div class="sg">
       <div class="sr"><span class="sl">軌跡の太さ</span><span class="sv" id="wvl">3px</span></div>
       <input type="range" min="1" max="12" value="3" oninput="setWidth(+this.value)">
     </div>
@@ -325,11 +321,15 @@ function setLayer(id) {
 
 // ── エンティティ
 let trailEntities=[],markerStart=null,markerEnd=null,aircraftEntity=null;
+let tailEntity=null;  // 直近数秒の軌跡（白色）
+const TAIL_SEC = 8;   // テールの長さ（秒）
+
 function clearEntities() {
   trailEntities.forEach(e=>viewer.entities.remove(e)); trailEntities=[];
   if(markerStart){viewer.entities.remove(markerStart);markerStart=null;}
   if(markerEnd){viewer.entities.remove(markerEnd);markerEnd=null;}
   if(aircraftEntity){viewer.entities.remove(aircraftEntity);aircraftEntity=null;}
+  if(tailEntity){viewer.entities.remove(tailEntity);tailEntity=null;}
 }
 const ICON='data:image/svg+xml,'+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="100" viewBox="-60 -40 120 100">'
@@ -373,6 +373,16 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
+
+  // 直近テール（白色・毎フレーム更新）
+  tailEntity = viewer.entities.add({
+    polyline:{
+      positions: [Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale)],
+      width: trailW + 1,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0, 1.0, 1.0, 0.95)),
+      clampToGround: false,
+    }
+  });
   markerStart=viewer.entities.add({
     position:Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
     point:{pixelSize:10,color:Cesium.Color.fromCssColorString('#00ff78'),outlineColor:Cesium.Color.WHITE,outlineWidth:2}
@@ -399,6 +409,20 @@ function updateAircraft() {
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
+
+  // 直近テール座標を更新
+  if(tailEntity) {
+    const curTime = cur.time;
+    let tailStart = hi;
+    for(let i=hi; i>=0; i--) {
+      tailStart = i;
+      if(pts[i].time <= curTime - TAIL_SEC) break;
+    }
+    const tailPositions = [];
+    for(let i=tailStart; i<=hi; i++)
+      tailPositions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon, pts[i].lat, pts[i].alt*zScale));
+    tailEntity.polyline.positions = tailPositions;
+  }
 
   // カメラ高度に応じてアイコンサイズを動的に変更
   const camHeight = viewer.camera.positionCartographic.height;
