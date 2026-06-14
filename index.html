@@ -336,6 +336,26 @@ function updateAircraft() {
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
+  // 機体追従
+  if(followMode) {
+    viewer.camera.lookAt(
+      pos,
+      new Cesium.HeadingPitchRange(
+        viewer.camera.heading,
+        Cesium.Math.toRadians(-35),
+        2000
+      )
+    );
+  }
+}
+
+// 追従OFF時にカメラロックを解除
+function toggleFollow() {
+  followMode=!followMode;
+  document.getElementById('bFol').classList.toggle('on',followMode);
+  if(!followMode) {
+    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  }
 }
 
 // ── 再生
@@ -410,7 +430,6 @@ function drawAltChart() {
 function setZScale(v){zScale=v;document.getElementById('zvl').textContent='×'+v;if(pts.length){buildTrail();updateAircraft();}}
 function setWidth(v){trailW=v;document.getElementById('wvl').textContent=v+'px';if(pts.length){buildTrail();updateAircraft();}}
 function toggle3D(){is3D=!is3D;document.getElementById('b3d').classList.toggle('on',is3D);is3D?viewer.scene.morphTo3D(0.5):viewer.scene.morphTo2D(0.5);}
-function toggleFollow(){followMode=!followMode;document.getElementById('bFol').classList.toggle('on',followMode);}
 function fitAll(){
   if(!pts.length)return;
   viewer.camera.flyToBoundingSphere(
