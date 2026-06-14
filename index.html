@@ -11,47 +11,37 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { width:100%; height:100%; overflow:hidden; background:#07101e;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; }
-
 #cesiumContainer { position:absolute; inset:0; z-index:0; }
-
 .panel {
   position:absolute; z-index:10;
-  background:rgba(8,16,32,0.90);
-  border:1px solid rgba(255,255,255,0.11);
-  border-radius:11px;
-  backdrop-filter:blur(16px);
-  color:#d4e8f5;
+  background:rgba(8,16,32,0.90); border:1px solid rgba(255,255,255,0.11);
+  border-radius:11px; backdrop-filter:blur(16px); color:#d4e8f5;
 }
 #header {
   top:12px; left:12px; right:12px;
   display:flex; align-items:center; gap:14px; padding:9px 16px;
 }
-.logo { font-size:22px; filter:drop-shadow(0 0 5px #f5c842); }
+.logo { font-size:22px; }
 .app-name { font-size:16px; font-weight:700; color:#f5c842; letter-spacing:.06em; }
 .app-sub { font-size:8.5px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.13em; margin-top:1px; }
 #hstats { display:none; gap:16px; margin-left:auto; }
 .hs .v { font-size:14px; font-weight:700; color:#f5c842; font-variant-numeric:tabular-nums; }
 .hs .l { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.07em; }
-
 #side {
   position:absolute; z-index:10;
   left:12px; top:68px; bottom:12px;
   width:250px; display:flex; flex-direction:column; gap:8px;
 }
 .card {
-  background:rgba(8,16,32,0.90);
-  border:1px solid rgba(255,255,255,0.11);
-  border-radius:10px; padding:12px 14px;
-  backdrop-filter:blur(16px); flex-shrink:0;
+  background:rgba(8,16,32,0.90); border:1px solid rgba(255,255,255,0.11);
+  border-radius:10px; padding:12px 14px; backdrop-filter:blur(16px); flex-shrink:0;
 }
 .card-grow { flex:1; min-height:0; display:flex; flex-direction:column; }
 .sec {
-  font-size:8px; letter-spacing:.2em; text-transform:uppercase;
-  color:#5a7fa0; margin-bottom:9px;
-  display:flex; align-items:center; gap:5px;
+  font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:#5a7fa0;
+  margin-bottom:9px; display:flex; align-items:center; gap:5px;
 }
 .sec::before { content:''; width:9px; height:1px; background:#f5c842; display:block; flex-shrink:0; }
-
 .lbtns { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
 .lbtn {
   background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10);
@@ -60,13 +50,11 @@ html,body { width:100%; height:100%; overflow:hidden; background:#07101e;
 }
 .lbtn:hover { border-color:#f5c842; color:#f5c842; }
 .lbtn.on { background:rgba(245,200,66,.18); border-color:#f5c842; color:#f5c842; }
-
 .prow { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .pbtn {
   width:38px; height:38px; border-radius:50%; flex-shrink:0;
-  background:linear-gradient(135deg,#f59b1a,#f5c842);
-  border:none; color:#07101e; font-size:15px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#f59b1a,#f5c842); border:none; color:#07101e;
+  font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   transition:transform .1s;
 }
 .pbtn:hover { transform:scale(1.08); }
@@ -81,7 +69,6 @@ html,body { width:100%; height:100%; overflow:hidden; background:#07101e;
 .pfill { height:100%; width:0%; background:linear-gradient(90deg,#00d4ff,#f5c842); border-radius:3px; }
 .trow { display:flex; justify-content:space-between; font-size:10px; color:#5a7fa0; }
 .tval { color:#d4e8f5; font-size:12px; font-variant-numeric:tabular-nums; }
-
 .sg { margin-bottom:8px; }
 .sr { display:flex; justify-content:space-between; margin-bottom:3px; }
 .sl { font-size:10px; color:#5a7fa0; }
@@ -91,16 +78,13 @@ input[type=range] {
   background:rgba(255,255,255,.12); outline:none; cursor:pointer;
 }
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
-  background:#f5c842;
+  -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#f5c842;
 }
-
 .sgrid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
 .sbox { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
   border-radius:7px; padding:8px 10px; }
 .sbox .bv { font-size:15px; font-weight:700; color:#f5c842; line-height:1; font-variant-numeric:tabular-nums; }
 .sbox .bl { font-size:8px; color:#5a7fa0; text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
-
 #altCvs { width:100%; flex:1; display:block; cursor:crosshair; min-height:40px; }
 .legrow { display:flex; align-items:center; gap:5px; margin-top:5px; flex-shrink:0; }
 .legbar { flex:1; height:3px; border-radius:2px; background:linear-gradient(90deg,#00d4ff,#ff6b35); }
@@ -111,10 +95,8 @@ input[type=range]::-webkit-slider-thumb {
   cursor:pointer; margin-top:7px; font-family:inherit; flex-shrink:0; transition:all .14s;
 }
 .newbtn:hover { color:#f5c842; border-color:#f5c842; }
-
 #rc {
-  position:absolute; z-index:10;
-  right:12px; top:68px;
+  position:absolute; z-index:10; right:12px; top:68px;
   display:flex; flex-direction:column; gap:7px;
 }
 .cbtn {
@@ -124,7 +106,6 @@ input[type=range]::-webkit-slider-thumb {
   display:flex; align-items:center; justify-content:center; transition:all .14s;
 }
 .cbtn:hover,.cbtn.on { border-color:#f5c842; color:#f5c842; background:rgba(245,200,66,.15); }
-
 #hud {
   position:absolute; z-index:10;
   bottom:12px; left:274px; right:58px;
@@ -132,32 +113,28 @@ input[type=range]::-webkit-slider-thumb {
 }
 .hl { font-size:9px; color:#5a7fa0; }
 .hv { font-size:13px; font-weight:700; color:#f5c842; min-width:60px; font-variant-numeric:tabular-nums; }
-
 #ov {
   position:absolute; inset:0; z-index:30;
   background:radial-gradient(ellipse at 50% 38%,#122040 0%,#060e1b 100%);
-  display:flex; align-items:center; justify-content:center;
-  padding:20px; transition:opacity .4s;
+  display:flex; align-items:center; justify-content:center; padding:20px; transition:opacity .4s;
 }
 .ucard {
   background:rgba(9,18,36,.96); border:1.5px dashed rgba(245,200,66,.28);
-  border-radius:18px; padding:44px 52px; text-align:center;
-  max-width:460px; width:100%; transition:border-color .2s;
+  border-radius:18px; padding:44px 52px; text-align:center; max-width:460px; width:100%;
 }
 .ucard.drag { border-color:#f5c842; }
 .uico { font-size:52px; margin-bottom:14px; }
 .utitle { font-size:22px; font-weight:700; color:#f5c842; margin-bottom:8px; letter-spacing:.05em; }
 .udesc { font-size:12px; color:#5a7fa0; line-height:1.7; margin-bottom:22px; }
 .ubtn {
-  width:100%; background:linear-gradient(135deg,#f59b1a,#f5c842);
-  color:#07101e; border:none; border-radius:9px; padding:13px;
-  font-size:14px; font-weight:700; cursor:pointer; margin-bottom:10px; font-family:inherit;
+  width:100%; background:linear-gradient(135deg,#f59b1a,#f5c842); color:#07101e;
+  border:none; border-radius:9px; padding:13px; font-size:14px; font-weight:700;
+  cursor:pointer; margin-bottom:10px; font-family:inherit;
 }
 .ubtn:hover { filter:brightness(1.08); }
 .dbtn {
-  width:100%; background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.12); border-radius:9px;
-  color:#d4e8f5; font-size:12px; padding:11px;
+  width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  border-radius:9px; color:#d4e8f5; font-size:12px; padding:11px;
   cursor:pointer; font-family:inherit; transition:all .14s;
 }
 .dbtn:hover { border-color:#f5c842; color:#f5c842; }
@@ -181,10 +158,7 @@ input[type=range]::-webkit-slider-thumb {
 
 <div class="panel" id="header">
   <div class="logo">🪂</div>
-  <div>
-    <div class="app-name">PARATRACK 3D</div>
-    <div class="app-sub">Motor Paraglider Flight Viewer</div>
-  </div>
+  <div><div class="app-name">PARATRACK 3D</div><div class="app-sub">Motor Paraglider Flight Viewer</div></div>
   <div id="hstats">
     <div class="hs"><div class="v" id="hA">—</div><div class="l">最高高度 m</div></div>
     <div class="hs"><div class="v" id="hD">—</div><div class="l">飛行距離 km</div></div>
@@ -243,9 +217,7 @@ input[type=range]::-webkit-slider-thumb {
   <div class="card card-grow">
     <div class="sec">高度グラフ</div>
     <canvas id="altCvs"></canvas>
-    <div class="legrow">
-      <span class="legl">低</span><div class="legbar"></div><span class="legl">高</span>
-    </div>
+    <div class="legrow"><span class="legl">低</span><div class="legbar"></div><span class="legl">高</span></div>
     <button class="newbtn" onclick="resetFlight()">↩ 別のフライトを読み込む</button>
   </div>
 </div>
@@ -265,9 +237,9 @@ input[type=range]::-webkit-slider-thumb {
 </div>
 
 <script>
-// ════════════════════════════════════════════
-// ユーティリティ（先頭で定義）
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
+// ユーティリティ
+// ──────────────────────────────────────────
 function fmtTime(sec) {
   sec = Math.max(0, Math.floor(sec));
   return [Math.floor(sec/3600), Math.floor((sec%3600)/60), sec%60]
@@ -284,9 +256,9 @@ function totalDist(pts) {
   return d;
 }
 
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 // パーサー
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 function parseIGC(txt) {
   const pts=[];
   for(const line of txt.split(/\r?\n/)) {
@@ -330,28 +302,27 @@ function generateDemo() {
   return pts;
 }
 
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 // 状態
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 let pts=[], bnds=null;
 let playhead=0, playing=false, rafId=null, prevTs=null;
 let zScale=1, trailW=3, tailSec=60, is3D=true, followMode=false;
-let altChartFrame=0;
+let frameCount=0;
 
 function totalDur() { return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time); }
 function headIdx()  { return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1); }
 
-// ════════════════════════════════════════════
-// Cesium ビューア初期化
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
+// Cesium 初期化（地図タイルのみ担当）
+// ──────────────────────────────────────────
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTQwNjQsImlhdCI6MTYyODIyNDY5NH0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
 
-// ESRI衛星写真を初期レイヤーとして直接設定（動作実績あり）
 const viewer = new Cesium.Viewer('cesiumContainer', {
   imageryProvider: new Cesium.UrlTemplateImageryProvider({
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     maximumLevel: 19,
-    credit: new Cesium.Credit('Tiles © Esri', false),
+    credit: new Cesium.Credit('Tiles &copy; Esri', false),
   }),
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
@@ -359,7 +330,6 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   animation:false, timeline:false, fullscreenButton:false,
   infoBox:false, selectionIndicator:false,
 });
-
 viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
@@ -368,34 +338,26 @@ function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('lb-'+id).classList.add('on');
   viewer.imageryLayers.removeAll();
-  if(id === 'sat') {
-    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      maximumLevel: 19,
-      credit: new Cesium.Credit('Tiles © Esri', false),
-    }));
-  } else {
-    viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
-      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maximumLevel: 19,
-      credit: new Cesium.Credit('© OpenStreetMap contributors', false),
-    }));
-  }
+  viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+    url: id==='sat'
+      ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maximumLevel: 19,
+    credit: new Cesium.Credit(id==='sat' ? 'Tiles &copy; Esri' : '&copy; OpenStreetMap contributors', false),
+  }));
 }
 
-// ════════════════════════════════════════════
-// Cesium エンティティ
-// CallbackProperty を使い配列参照を渡す方式
-// → 配列を書き換えるだけで自動的に反映される
-// ════════════════════════════════════════════
-let fullTrailPositions = [];  // 全ルート座標（固定）
-let tailPositions      = [];  // テール座標（毎フレーム in-place 書き換え）
+// ──────────────────────────────────────────
+// エンティティ管理
+// ──────────────────────────────────────────
+let fullTrailPositions = [];
+let tailPositions      = [];
 
-let fullTrailEntity  = null;
-let tailEntity       = null;
-let markerStart      = null;
-let markerEnd        = null;
-let aircraftEntity   = null;
+let fullTrailEntity = null;
+let tailEntity      = null;
+let markerStart     = null;
+let markerEnd       = null;
+let aircraftEntity  = null;
 
 function clearEntities() {
   [fullTrailEntity, tailEntity, markerStart, markerEnd, aircraftEntity].forEach(e => {
@@ -406,11 +368,25 @@ function clearEntities() {
   tailPositions = [];
 }
 
+// SVGアイコン（btoa不使用）
+const AIRCRAFT_SVG = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48">'
+  +'<circle cx="24" cy="28" r="16" fill="rgba(245,200,66,0.18)"/>'
+  +'<path d="M8 22 Q24 6 40 22" stroke="#f5c842" stroke-width="3" fill="none" stroke-linecap="round"/>'
+  +'<line x1="12" y1="22" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<line x1="19" y1="19" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<line x1="29" y1="19" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<line x1="36" y1="22" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
+  +'<circle cx="24" cy="34" r="4" fill="#f5c842"/>'
+  +'<circle cx="24" cy="35" r="6" stroke="#f5c842" stroke-width="1.5" fill="none" opacity="0.6"/>'
+  +'</svg>'
+);
+
 function buildEntities() {
   clearEntities();
   const n = pts.length;
 
-  // 全ルート（視認できる太さ・明るさに変更）
+  // 全ルート（太め・明るい青）
   fullTrailPositions = pts.map(p =>
     Cesium.Cartesian3.fromDegrees(p.lon, p.lat, p.alt * zScale)
   );
@@ -423,7 +399,7 @@ function buildEntities() {
     }
   });
 
-  // テール（明るい線）— 同じく CallbackProperty
+  // テール（再生中に動く明るい線）
   tailPositions = [Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt * zScale)];
   tailEntity = viewer.entities.add({
     polyline: {
@@ -434,25 +410,12 @@ function buildEntities() {
     }
   });
 
-  // 機体アイコン — position には ConstantPositionProperty を使う
-  // （CallbackProperty を position に使うとCesiumの内部エラーになる）
-  const initPos = Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt * zScale);
-  const svgData = 'data:image/svg+xml,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 48 48">'
-    +'<circle cx="24" cy="28" r="16" fill="rgba(245,200,66,0.18)"/>'
-    +'<path d="M8 22 Q24 6 40 22" stroke="#f5c842" stroke-width="3" fill="none" stroke-linecap="round"/>'
-    +'<line x1="12" y1="22" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
-    +'<line x1="19" y1="19" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
-    +'<line x1="29" y1="19" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
-    +'<line x1="36" y1="22" x2="24" y2="32" stroke="#f5c842" stroke-width="1.2" opacity="0.8"/>'
-    +'<circle cx="24" cy="34" r="4" fill="#f5c842"/>'
-    +'<circle cx="24" cy="35" r="6" stroke="#f5c842" stroke-width="1.5" fill="none" opacity="0.6"/>'
-    +'</svg>'
-  );
+  // 機体（ConstantPositionProperty + setValue で更新）
+  const p0 = Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt * zScale);
   aircraftEntity = viewer.entities.add({
-    position: new Cesium.ConstantPositionProperty(initPos),
+    position: new Cesium.ConstantPositionProperty(p0),
     billboard: {
-      image: svgData,
+      image: AIRCRAFT_SVG,
       width: 52, height: 52,
       verticalOrigin:   Cesium.VerticalOrigin.CENTER,
       horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
@@ -472,7 +435,7 @@ function buildEntities() {
     }
   });
 
-  // スタート/エンドマーカー（固定）
+  // スタート（緑）/ エンド（赤）
   markerStart = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt * zScale),
     point: { pixelSize:10, color:Cesium.Color.fromCssColorString('#00ff78'),
@@ -485,61 +448,58 @@ function buildEntities() {
   });
 }
 
-// ════════════════════════════════════════════
-// レンダリング（毎フレーム：配列を書き換えるだけ）
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
+// 毎フレーム更新（テールと機体位置のみ）
+// ──────────────────────────────────────────
 function updateFrame() {
   if(!pts.length) return;
   const hi  = headIdx();
   const cur = pts[hi];
   const minA = bnds.minAlt, maxA = bnds.maxAlt;
 
-  // テール：直近 tailSec 秒分
+  // テール：直近 tailSec 秒分を in-place 更新
   let tailStart = 0;
   for(let i=hi; i>=0; i--) {
     tailStart = i;
     if(pts[i].time <= cur.time - tailSec) break;
   }
-  // tailPositions 配列を in-place で書き換える（参照が変わらないのでCallbackPropertyが正常動作）
   tailPositions.length = 0;
   for(let i=tailStart; i<=hi; i++) {
     tailPositions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon, pts[i].lat, pts[i].alt * zScale));
   }
 
-  // テール色を高度に応じて更新
+  // テール色（高度に応じてシアン→オレンジ）
   const t = Math.max(0, Math.min(1, (cur.alt - minA) / Math.max(1, maxA - minA)));
-  const tailColor = new Cesium.Color(t, 0.78 - t*0.36, 1 - t*0.86, 1.0);
-  if(tailEntity) tailEntity.polyline.material = new Cesium.ColorMaterialProperty(tailColor);
-
-  // 機体位置を ConstantPositionProperty.setValue() で更新
-  const newPos = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale);
-  if(aircraftEntity) {
-    aircraftEntity.position.setValue(newPos);
-    aircraftEntity.label.text = Math.round(cur.alt) + ' m';
+  if(tailEntity) {
+    tailEntity.polyline.material = new Cesium.ColorMaterialProperty(
+      new Cesium.Color(t, 0.78 - t*0.36, 1 - t*0.86, 1.0)
+    );
   }
 
-  // 追従：lookAt はカメラを完全固定してしまうため使わない
-  // 代わりにカメラの現在の高度オフセットを維持しながらターゲット位置だけ移動
-  if(followMode && newPos) {
-    // 現在のカメラとターゲットの高度差を維持しつつ、真上から少し傾けて追従
-    viewer.camera.setView({
-      destination: new Cesium.Cartesian3(
-        newPos.x + followOffset.x,
-        newPos.y + followOffset.y,
-        newPos.z + followOffset.z
-      ),
-      orientation: {
-        heading: viewer.camera.heading,
-        pitch:   viewer.camera.pitch,
-        roll:    0,
-      }
-    });
+  // 機体位置・ラベル更新
+  if(aircraftEntity) {
+    const newPos = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale);
+    aircraftEntity.position.setValue(newPos);
+    aircraftEntity.label.text = Math.round(cur.alt) + ' m';
+
+    // 追従：6フレームに1回だけ flyTo（duration:0 で瞬時移動、ズーム・視点操作を妨げない）
+    if(followMode && frameCount % 6 === 0) {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale + 2500),
+        orientation: {
+          heading: viewer.camera.heading,
+          pitch: Cesium.Math.toRadians(-40),
+          roll: 0,
+        },
+        duration: 0.5,
+      });
+    }
   }
 }
 
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 // 再生
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 function togglePlay() {
   if(!pts.length) return;
   playing = !playing;
@@ -558,10 +518,10 @@ function tick(ts) {
   if(!playing) return;
   if(prevTs !== null) {
     const dt = (ts - prevTs) / 1000;
-    const spd = +document.getElementById('speedSel').value;
-    playhead = Math.min(1, playhead + (dt * spd) / totalDur());
+    playhead = Math.min(1, playhead + (dt * +document.getElementById('speedSel').value) / totalDur());
   }
   prevTs = ts;
+  frameCount++;
 
   const hi = headIdx();
   document.getElementById('pf').style.width = (playhead * 100) + '%';
@@ -569,11 +529,10 @@ function tick(ts) {
 
   updateFrame();
   updateHUD(hi);
-  if(altChartFrame++ % 30 === 0) drawAltChart();
+  if(frameCount % 30 === 0) drawAltChart();
 
   if(playhead >= 1) {
-    playing = false;
-    rafId = null;
+    playing = false; rafId = null;
     document.getElementById('playBtn').textContent = '▶';
     drawAltChart();
     return;
@@ -590,12 +549,11 @@ function updateHUD(hi) {
     const prev = pts[hi-1];
     const dt = Math.max(0.1, cur.time - prev.time);
     const dm = haversineKm(prev.lat,prev.lon,cur.lat,cur.lon) * 1000;
-    const spd = (dm / dt * 3.6).toFixed(1) + ' km/h';
+    document.getElementById('bSpd').textContent = (dm/dt*3.6).toFixed(1) + ' km/h';
     const vario = (cur.alt - prev.alt) / dt;
-    document.getElementById('bSpd').textContent = spd;
     const vEl = document.getElementById('bVar');
-    vEl.textContent = (vario >= 0 ? '+' : '') + vario.toFixed(1) + ' m/s';
-    vEl.style.color = vario > 0.5 ? '#00ff78' : vario < -0.5 ? '#ff5555' : '#f5c842';
+    vEl.textContent = (vario>=0?'+':'') + vario.toFixed(1) + ' m/s';
+    vEl.style.color = vario>0.5?'#00ff78':vario<-0.5?'#ff5555':'#f5c842';
   }
 }
 
@@ -611,15 +569,14 @@ document.getElementById('pbar').addEventListener('click', e => {
   updateHUD(hi);
 });
 
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 // 高度グラフ
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 function drawAltChart() {
   const c = document.getElementById('altCvs');
   if(!c.offsetWidth || !c.offsetHeight) return;
   const dpr = window.devicePixelRatio || 1;
-  c.width = c.offsetWidth * dpr;
-  c.height = c.offsetHeight * dpr;
+  c.width = c.offsetWidth * dpr; c.height = c.offsetHeight * dpr;
   const ctx = c.getContext('2d');
   const W=c.width, H=c.height, p=3;
   ctx.clearRect(0,0,W,H);
@@ -641,49 +598,26 @@ function drawAltChart() {
   ctx.strokeStyle='rgba(245,200,66,.9)'; ctx.lineWidth=2*dpr; ctx.stroke();
 }
 
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
 // カメラ・設定
-// ════════════════════════════════════════════
-function setTailSec(v) {
-  tailSec = v;
-  document.getElementById('tailVl').textContent = v + '秒';
-}
+// ──────────────────────────────────────────
+function setTailSec(v) { tailSec=v; document.getElementById('tailVl').textContent=v+'秒'; }
 function setZScale(v) {
-  zScale = v;
-  document.getElementById('zvl').textContent = '×' + v;
+  zScale=v; document.getElementById('zvl').textContent='×'+v;
   if(pts.length) buildEntities();
 }
 function setWidth(v) {
-  trailW = v;
-  document.getElementById('wvl').textContent = v + 'px';
+  trailW=v; document.getElementById('wvl').textContent=v+'px';
   if(pts.length) buildEntities();
 }
 function toggle3D() {
-  is3D = !is3D;
-  document.getElementById('b3d').classList.toggle('on', is3D);
+  is3D=!is3D;
+  document.getElementById('b3d').classList.toggle('on',is3D);
   is3D ? viewer.scene.morphTo3D(0.5) : viewer.scene.morphTo2D(0.5);
 }
-// 追従時のカメラオフセット（機体位置からの差分）
-let followOffset = { x: 0, y: 0, z: 3000 };
-
 function toggleFollow() {
-  followMode = !followMode;
-  document.getElementById('bFol').classList.toggle('on', followMode);
-  if(followMode && pts.length) {
-    // 追従ON時：現在の機体位置とカメラ位置の差をオフセットとして記憶
-    const hi = headIdx();
-    const cur = pts[hi];
-    const target = Cesium.Cartesian3.fromDegrees(cur.lon, cur.lat, cur.alt * zScale);
-    const cam = viewer.camera.position;
-    followOffset = {
-      x: cam.x - target.x,
-      y: cam.y - target.y,
-      z: cam.z - target.z,
-    };
-  } else if(!followMode) {
-    // 追従OFF時：lookAtTransform を解除（lookAt使用時のロック解除）
-    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-  }
+  followMode=!followMode;
+  document.getElementById('bFol').classList.toggle('on',followMode);
 }
 function fitAll() {
   if(!pts.length) return;
@@ -695,36 +629,33 @@ function fitAll() {
   );
 }
 
-// ════════════════════════════════════════════
-// フライトデータ読み込み
-// ════════════════════════════════════════════
+// ──────────────────────────────────────────
+// データ読み込み
+// ──────────────────────────────────────────
 function loadFlightData(data) {
-  if(!data || data.length < 2) { alert('有効なGPSデータが見つかりませんでした。'); return; }
-
-  playing = false;
-  if(rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  if(!data||data.length<2){ alert('有効なGPSデータが見つかりませんでした。'); return; }
+  playing=false;
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
 
   pts = data.filter(d => d.lat || d.lon);
-  playhead = 0; prevTs = null; altChartFrame = 0;
-  document.getElementById('playBtn').textContent = '▶';
+  playhead=0; prevTs=null; frameCount=0;
+  document.getElementById('playBtn').textContent='▶';
 
   bnds = {
-    minLat: Math.min(...pts.map(d=>d.lat)), maxLat: Math.max(...pts.map(d=>d.lat)),
-    minLon: Math.min(...pts.map(d=>d.lon)), maxLon: Math.max(...pts.map(d=>d.lon)),
-    minAlt: Math.min(...pts.map(d=>d.alt)), maxAlt: Math.max(...pts.map(d=>d.alt)),
+    minLat:Math.min(...pts.map(d=>d.lat)), maxLat:Math.max(...pts.map(d=>d.lat)),
+    minLon:Math.min(...pts.map(d=>d.lon)), maxLon:Math.max(...pts.map(d=>d.lon)),
+    minAlt:Math.min(...pts.map(d=>d.alt)), maxAlt:Math.max(...pts.map(d=>d.alt)),
   };
 
-  const dur = totalDur();
-  const dist = totalDist(pts);
-
-  document.getElementById('hA').textContent = Math.round(bnds.maxAlt);
-  document.getElementById('hD').textContent = dist.toFixed(1);
-  document.getElementById('hT').textContent = fmtTime(dur);
-  document.getElementById('hstats').style.display = 'flex';
-  document.getElementById('tT').textContent = fmtTime(dur);
-  document.getElementById('cT').textContent = '00:00:00';
-  document.getElementById('pf').style.width = '0%';
-  document.getElementById('stc').innerHTML = `<div class="sgrid">
+  const dur=totalDur(), dist=totalDist(pts);
+  document.getElementById('hA').textContent=Math.round(bnds.maxAlt);
+  document.getElementById('hD').textContent=dist.toFixed(1);
+  document.getElementById('hT').textContent=fmtTime(dur);
+  document.getElementById('hstats').style.display='flex';
+  document.getElementById('tT').textContent=fmtTime(dur);
+  document.getElementById('cT').textContent='00:00:00';
+  document.getElementById('pf').style.width='0%';
+  document.getElementById('stc').innerHTML=`<div class="sgrid">
     <div class="sbox"><div class="bv">${Math.round(bnds.maxAlt)}</div><div class="bl">最高高度 m</div></div>
     <div class="sbox"><div class="bv">${Math.round(bnds.minAlt)}</div><div class="bl">最低高度 m</div></div>
     <div class="sbox"><div class="bv">${dist.toFixed(1)}</div><div class="bl">飛行距離 km</div></div>
@@ -732,55 +663,51 @@ function loadFlightData(data) {
     <div class="sbox"><div class="bv">${(dist/(dur/3600)).toFixed(1)}</div><div class="bl">平均速度 km/h</div></div>
     <div class="sbox"><div class="bv">${pts.length}</div><div class="bl">GPS点数</div></div>
   </div>`;
-  document.getElementById('hud').style.display = 'flex';
+  document.getElementById('hud').style.display='flex';
 
-  // エンティティ構築（CallbackProperty 方式）
   buildEntities();
   updateFrame();
   updateHUD(0);
 
-  // アップロード画面を隠す
-  const ov = document.getElementById('ov');
-  ov.style.opacity = '0'; ov.style.pointerEvents = 'none';
-  setTimeout(() => { ov.style.display = 'none'; }, 420);
-
-  setTimeout(() => { fitAll(); drawAltChart(); }, 300);
+  const ov=document.getElementById('ov');
+  ov.style.opacity='0'; ov.style.pointerEvents='none';
+  setTimeout(()=>{ ov.style.display='none'; },420);
+  setTimeout(()=>{ fitAll(); drawAltChart(); },300);
 }
 
 function resetFlight() {
-  playing = false;
-  if(rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  playing=false;
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
   clearEntities();
-  pts = []; bnds = null; playhead = 0; prevTs = null;
-  document.getElementById('hstats').style.display = 'none';
-  document.getElementById('hud').style.display = 'none';
-  document.getElementById('pf').style.width = '0%';
-  document.getElementById('cT').textContent = '00:00:00';
-  document.getElementById('tT').textContent = '00:00:00';
-  document.getElementById('stc').innerHTML = '<div style="font-size:11px;color:#5a7fa0;text-align:center;padding:4px 0">ファイルを読み込むと表示されます</div>';
+  pts=[]; bnds=null; playhead=0; prevTs=null; frameCount=0;
+  document.getElementById('hstats').style.display='none';
+  document.getElementById('hud').style.display='none';
+  document.getElementById('pf').style.width='0%';
+  document.getElementById('cT').textContent='00:00:00';
+  document.getElementById('tT').textContent='00:00:00';
+  document.getElementById('stc').innerHTML='<div style="font-size:11px;color:#5a7fa0;text-align:center;padding:4px 0">ファイルを読み込むと表示されます</div>';
   document.getElementById('altCvs').getContext('2d').clearRect(0,0,9999,9999);
-  const ov = document.getElementById('ov');
-  ov.style.display = 'flex'; ov.style.opacity = '1'; ov.style.pointerEvents = '';
+  const ov=document.getElementById('ov');
+  ov.style.display='flex'; ov.style.opacity='1'; ov.style.pointerEvents='';
 }
 
-// ファイル入力
 document.getElementById('fi').addEventListener('change', e => {
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => loadFlightData(parseAuto(ev.target.result, f.name));
-  r.readAsText(f); e.target.value = '';
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>loadFlightData(parseAuto(ev.target.result,f.name));
+  r.readAsText(f); e.target.value='';
 });
-const dz = document.getElementById('dz');
-document.body.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-document.body.addEventListener('dragleave', () => dz.classList.remove('drag'));
-document.body.addEventListener('drop', e => {
+const dz=document.getElementById('dz');
+document.body.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+document.body.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+document.body.addEventListener('drop',e=>{
   e.preventDefault(); dz.classList.remove('drag');
-  const f = e.dataTransfer.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => loadFlightData(parseAuto(ev.target.result, f.name));
+  const f=e.dataTransfer.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>loadFlightData(parseAuto(ev.target.result,f.name));
   r.readAsText(f);
 });
-function loadDemo() { loadFlightData(generateDemo()); }
+function loadDemo(){ loadFlightData(generateDemo()); }
 </script>
 </body>
 </html>
