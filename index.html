@@ -199,6 +199,7 @@ viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
 
 // ズーム・移動時にもアイコンサイズを即時更新
+// 追従中にユーザーがドラッグした場合もheading/pitchを記憶
 viewer.camera.changed.addEventListener(() => {
   if(aircraftEntity && pts.length) {
     const camHeight = viewer.camera.positionCartographic.height;
@@ -206,6 +207,9 @@ viewer.camera.changed.addEventListener(() => {
     const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
     aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
   }
+  // 常にheading/pitchを記憶（追従中のドラッグも反映）
+  followHeading = viewer.camera.heading;
+  followPitch   = viewer.camera.pitch;
 });
 
 // ── ユーティリティ
@@ -301,6 +305,7 @@ function generateDemo() {
 let pts=[],bnds=null,playhead=0,playing=false,rafId=null,prevTs=null;
 let zScale=1,trailW=3,is3D=true,followMode=false,frameCount=0;
 let followDistance=8000;
+let followHeading=0, followPitch=Cesium.Math.toRadians(-35);
 function totalDur(){return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time);}
 function headIdx(){return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1);}
 
@@ -401,13 +406,13 @@ function updateAircraft() {
   const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
   aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
 
-  // 追従：現在のheading/pitch/距離を維持しながら機体位置に追従
+  // 追従：記憶したheading/pitchを維持しながら機体位置に追従
   if(followMode) {
     viewer.camera.lookAt(
       pos,
       new Cesium.HeadingPitchRange(
-        viewer.camera.heading,
-        viewer.camera.pitch,
+        followHeading,
+        followPitch,
         followDistance
       )
     );
@@ -418,7 +423,9 @@ function toggleFollow() {
   followMode=!followMode;
   document.getElementById('bFol').classList.toggle('on',followMode);
   if(followMode) {
-    // 追従ON時の初期距離を現在のカメラ位置から計算
+    // 追従ON時：現在のheading/pitchと距離を記憶
+    followHeading = viewer.camera.heading;
+    followPitch   = viewer.camera.pitch;
     viewer.trackedEntity = undefined;
     if(aircraftEntity&&pts.length) {
       const cur=pts[headIdx()];
