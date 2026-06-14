@@ -257,7 +257,7 @@ function generateDemo() {
 // ── 状態
 let pts=[],bnds=null,playhead=0,playing=false,rafId=null,prevTs=null;
 let zScale=1,trailW=3,is3D=true,followMode=false,frameCount=0;
-let followDistance=3000;
+let followDistance=8000;
 function totalDur(){return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time);}
 function headIdx(){return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1);}
 
@@ -360,7 +360,7 @@ function toggleFollow() {
       const cur=pts[headIdx()];
       const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
       followDistance = Cesium.Cartesian3.distance(viewer.camera.position, pos);
-      followDistance = Math.max(500, Math.min(followDistance, 50000));
+      followDistance = Math.max(3000, Math.min(followDistance, 50000));
     }
   } else {
     // 追従OFF：カメラロック解除
@@ -452,7 +452,7 @@ function fitAll(){
 viewer.scene.canvas.addEventListener('wheel', e => {
   if(!followMode) return;
   followDistance *= e.deltaY > 0 ? 1.15 : 0.87;
-  followDistance = Math.max(200, Math.min(followDistance, 100000));
+  followDistance = Math.max(3000, Math.min(followDistance, 100000));
 }, { passive: true });
 
 // ── データ読み込み
