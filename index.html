@@ -165,15 +165,15 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 // ── Cesium 初期化
 Cesium.Ion.defaultAccessToken = '';
 
-// IonImageryProvider がIonにリクエストを送る前に無効化
-const _origIonImageryProvider = Cesium.IonImageryProvider;
-Cesium.IonImageryProvider = function() { return {}; };
-if (Cesium.createWorldImagery) {
-  Cesium.createWorldImagery = () => new Cesium.SingleTileImageryProvider({
-    url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAABjE+ibYAAAAASUVORK5CYII=',
-    rectangle: Cesium.Rectangle.MAX_VALUE,
-  });
-}
+// Ion API へのリクエストをネットワークレベルでブロック
+// Cesium.Resource.fetchJson をラップして api.cesium.com へのリクエストを無視
+const _origFetchJson = Cesium.Resource.prototype.fetchJson;
+Cesium.Resource.prototype.fetchJson = function() {
+  if (this.url && this.url.includes('api.cesium.com')) {
+    return Promise.reject(new Error('Ion disabled'));
+  }
+  return _origFetchJson.apply(this, arguments);
+};
 
 const esriProvider = new Cesium.UrlTemplateImageryProvider({
   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
