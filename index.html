@@ -257,6 +257,7 @@ function generateDemo() {
 // ── 状態
 let pts=[],bnds=null,playhead=0,playing=false,rafId=null,prevTs=null;
 let zScale=1,trailW=3,is3D=true,followMode=false,frameCount=0;
+let followDistance=3000;
 function totalDur(){return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time);}
 function headIdx(){return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1);}
 
@@ -336,16 +337,34 @@ function updateAircraft() {
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
+  // 追従：現在のheading/pitch/距離を維持しながら機体位置に追従
+  if(followMode) {
+    viewer.camera.lookAt(
+      pos,
+      new Cesium.HeadingPitchRange(
+        viewer.camera.heading,
+        viewer.camera.pitch,
+        followDistance
+      )
+    );
+  }
 }
 
 function toggleFollow() {
   followMode=!followMode;
   document.getElementById('bFol').classList.toggle('on',followMode);
   if(followMode) {
-    // Cesium の trackedEntity で機体を追従
-    viewer.trackedEntity = aircraftEntity;
-  } else {
+    // 追従ON時の初期距離を現在のカメラ位置から計算
     viewer.trackedEntity = undefined;
+    if(aircraftEntity&&pts.length) {
+      const cur=pts[headIdx()];
+      const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
+      followDistance = Cesium.Cartesian3.distance(viewer.camera.position, pos);
+      followDistance = Math.max(500, Math.min(followDistance, 50000));
+    }
+  } else {
+    // 追従OFF：カメラロック解除
+    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   }
 }
 
@@ -428,6 +447,13 @@ function fitAll(){
     {duration:1.5,offset:new Cesium.HeadingPitchRange(0,Cesium.Math.toRadians(-40),0)}
   );
 }
+
+// 追従中のホイールズームを followDistance に反映
+viewer.scene.canvas.addEventListener('wheel', e => {
+  if(!followMode) return;
+  followDistance *= e.deltaY > 0 ? 1.15 : 0.87;
+  followDistance = Math.max(200, Math.min(followDistance, 100000));
+}, { passive: true });
 
 // ── データ読み込み
 function loadFlightData(data) {
