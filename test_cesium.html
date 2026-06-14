@@ -5,28 +5,31 @@
 <title>Cesium Test</title>
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
 <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<style>
-* { margin:0; padding:0; }
-html,body,#c { width:100%; height:100%; overflow:hidden; }
-</style>
+<style>* { margin:0; padding:0; } html,body,#c { width:100%; height:100%; overflow:hidden; }</style>
 </head>
 <body>
 <div id="c"></div>
 <script>
-Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTQwNjQsImlhdCI6MTYyODIyNDY5NH0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+// Ion を無効化
+Cesium.Ion.defaultAccessToken = '';
+
 const viewer = new Cesium.Viewer('c', {
-  imageryProvider: new Cesium.UrlTemplateImageryProvider({
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    maximumLevel: 19,
-    credit: new Cesium.Credit('Tiles &copy; Esri', false),
-  }),
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
   sceneModePicker:false, navigationHelpButton:false,
   animation:false, timeline:false, fullscreenButton:false,
   infoBox:false, selectionIndicator:false,
 });
-console.log('Cesium viewer created OK');
+
+// デフォルト imagery を削除してESRI衛星写真を追加
+viewer.imageryLayers.removeAll();
+viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  maximumLevel: 19,
+  credit: new Cesium.Credit('Tiles &copy; Esri', false),
+}));
+
+console.log('Cesium OK - imageryLayers:', viewer.imageryLayers.length);
 </script>
 </body>
 </html>
