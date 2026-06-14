@@ -367,27 +367,24 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
-  // 直近テール グロー層（太い半透明）
-  const initPos2 = new Cesium.ConstantProperty([
+  // 直近テール用の配列（CallbackPropertyで参照渡し）
+  window._tailPositions = [
     Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
     Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-  ]);
+  ];
+  // グロー層（太い半透明）
   tailGlowEntity = viewer.entities.add({
     polyline:{
-      positions: initPos2,
+      positions: new Cesium.CallbackProperty(()=>window._tailPositions, false),
       width: trailW+8,
       material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
       clampToGround:false,
     }
   });
-  // 直近テール コア層（細い明るい線）
-  const initPos = new Cesium.ConstantProperty([
-    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-  ]);
+  // コア層（明るい黄色）
   tailEntity = viewer.entities.add({
     polyline:{
-      positions: initPos,
+      positions: new Cesium.CallbackProperty(()=>window._tailPositions, false),
       width: trailW+3,
       material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
       clampToGround:false,
@@ -424,17 +421,12 @@ function updateAircraft() {
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
   // テール更新
-  if(tailEntity && hi>0) {
+  if(hi>0 && window._tailPositions) {
     let tailStart=hi;
     for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
-    const tp=[];
+    window._tailPositions.length=0;
     for(let i=tailStart;i<=hi;i++)
-      tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
-    if(tp.length>=2){
-      const cp = new Cesium.ConstantProperty(tp);
-      tailEntity.polyline.positions=cp;
-      if(tailGlowEntity) tailGlowEntity.polyline.positions=new Cesium.ConstantProperty(tp);
-    }
+      window._tailPositions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
   }
   // アイコンスケール
   const camHeight=viewer.camera.positionCartographic.height;
