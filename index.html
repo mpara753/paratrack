@@ -175,6 +175,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 // ── Cesium（test_cesium.html と同じ初期化）
 Cesium.Ion.defaultAccessToken = '';
 
+// IonのデフォルトWorldTerrainへのリクエストを抑制
+Cesium.createWorldTerrain = () => new Cesium.EllipsoidTerrainProvider();
+
 const viewer = new Cesium.Viewer('cesiumContainer', {
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
@@ -183,6 +186,7 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   infoBox:false, selectionIndicator:false,
 });
 
+// Ionへのリクエストを完全に止める
 viewer.imageryLayers.removeAll();
 viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
   url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
