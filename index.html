@@ -367,10 +367,27 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
-  // 直近テール用（毎フレーム再作成方式）
-  window._tailPositions = [];
-  tailGlowEntity = null;
-  tailEntity = null;
+  // 直近テール（buildTrailで1度だけ作成、updateAircraftで座標更新）
+  const initTp = [
+    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
+  ];
+  tailGlowEntity = viewer.entities.add({
+    polyline:{
+      positions: initTp,
+      width: trailW+8,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
+      clampToGround:false,
+    }
+  });
+  tailEntity = viewer.entities.add({
+    polyline:{
+      positions: initTp,
+      width: trailW+3,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
+      clampToGround:false,
+    }
+  });
   // スタート/エンドマーカー
   markerStart=viewer.entities.add({
     position:Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
@@ -402,29 +419,15 @@ function updateAircraft() {
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
   // テール更新
-  if(hi>0 && frameCount%10===0) {
-    // テール座標を計算
+  if(hi>0 && tailEntity) {
     let tailStart=hi;
     for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
     const tp=[];
     for(let i=tailStart;i<=hi;i++)
       tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
     if(tp.length>=2){
-      // 既存テールエンティティを削除
-      if(tailEntity){viewer.entities.remove(tailEntity);tailEntity=null;}
-      if(tailGlowEntity){viewer.entities.remove(tailGlowEntity);tailGlowEntity=null;}
-      // グロー層
-      tailGlowEntity=viewer.entities.add({
-        polyline:{positions:tp,width:trailW+8,
-          material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
-          clampToGround:false}
-      });
-      // コア層
-      tailEntity=viewer.entities.add({
-        polyline:{positions:tp,width:trailW+3,
-          material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
-          clampToGround:false}
-      });
+      tailEntity.polyline.positions = tp;
+      if(tailGlowEntity) tailGlowEntity.polyline.positions = tp;
     }
   }
   // アイコンスケール
