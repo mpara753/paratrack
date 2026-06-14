@@ -250,20 +250,24 @@ function headIdx()  { return Math.min(Math.floor(playhead*(pts.length-1)),pts.le
 // ──────────────────────────────────────
 // Cesium 初期化
 // ──────────────────────────────────────
-Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTQwNjQsImlhdCI6MTYyODIyNDY5NH0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+// Ion を完全に無効化してサードパーティタイルのみ使用
+Cesium.Ion.defaultAccessToken = '';
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
-  imageryProvider: new Cesium.UrlTemplateImageryProvider({
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    maximumLevel: 19,
-    credit: new Cesium.Credit('Tiles &copy; Esri', false),
-  }),
   terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   baseLayerPicker:false, geocoder:false, homeButton:false,
   sceneModePicker:false, navigationHelpButton:false,
   animation:false, timeline:false, fullscreenButton:false,
   infoBox:false, selectionIndicator:false,
 });
+
+// デフォルトの imagery を全削除してESRI衛星写真を追加
+viewer.imageryLayers.removeAll();
+viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+  url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  maximumLevel: 19,
+  credit: new Cesium.Credit('Tiles &copy; Esri', false),
+}));
 viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
