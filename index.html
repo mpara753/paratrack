@@ -522,124 +522,140 @@ function drawIcon() {
 
   if (px < -60 || py < -60 || px > iconCvs.width+60 || py > iconCvs.height+60) return;
 
-  // 進行方向
+  // 進行方向（+Math.PI/2 を除去して正しい向きに）
   let heading = 0;
   if (hi > 0) {
     const prev = pts[hi-1];
     const pp = map.project([prev.lon, prev.lat]);
-    heading = Math.atan2(py - pp.y, px - pp.x) + Math.PI/2;
+    heading = Math.atan2(py - pp.y, px - pp.x);
   }
 
   iconCtx.save();
   iconCtx.translate(px, py);
   iconCtx.rotate(heading);
 
-  // ── 外側グロー（オレンジ）
-  const grdOuter = iconCtx.createRadialGradient(0,0,8,0,0,44);
-  grdOuter.addColorStop(0,'rgba(255,107,53,0.35)');
-  grdOuter.addColorStop(1,'rgba(255,107,53,0)');
-  iconCtx.beginPath(); iconCtx.arc(0,0,44,0,Math.PI*2);
-  iconCtx.fillStyle=grdOuter; iconCtx.fill();
+  // ── グロー
+  const grdO = iconCtx.createRadialGradient(0,0,6,0,0,46);
+  grdO.addColorStop(0,'rgba(255,107,53,0.40)');
+  grdO.addColorStop(1,'rgba(255,107,53,0)');
+  iconCtx.beginPath(); iconCtx.arc(0,0,46,0,Math.PI*2);
+  iconCtx.fillStyle=grdO; iconCtx.fill();
 
-  // ── 内側グロー（レッド）
-  const grdInner = iconCtx.createRadialGradient(0,0,4,0,0,28);
-  grdInner.addColorStop(0,'rgba(192,57,43,0.5)');
-  grdInner.addColorStop(1,'rgba(192,57,43,0)');
-  iconCtx.beginPath(); iconCtx.arc(0,0,28,0,Math.PI*2);
-  iconCtx.fillStyle=grdInner; iconCtx.fill();
+  // ════════════════════════════════
+  // 3D俯瞰パラグライダー
+  // 進行方向 → 右（+X方向）
+  // キャノピーは機体前方（右）に浮かぶ大きな半球
+  // パイロット・モーターは中央〜後方（左寄り）
+  // ════════════════════════════════
 
-  const S = 1.9;
+  const S = 2.0;
   iconCtx.scale(S, S);
 
-  // ── キャノピー（グラデーション塗り）
-  const canopyGrd = iconCtx.createLinearGradient(0,-24,0,0);
-  canopyGrd.addColorStop(0,'rgba(255,255,255,0.85)');
-  canopyGrd.addColorStop(0.5,'rgba(255,107,53,0.9)');
-  canopyGrd.addColorStop(1,'rgba(192,57,43,0.95)');
-  iconCtx.beginPath();
-  iconCtx.moveTo(-20,0);
-  iconCtx.quadraticCurveTo(-15,-22,0,-24);
-  iconCtx.quadraticCurveTo(15,-22,20,0);
-  iconCtx.closePath();
-  iconCtx.fillStyle=canopyGrd; iconCtx.fill();
-  iconCtx.strokeStyle='rgba(255,107,53,0.8)'; iconCtx.lineWidth=1.2; iconCtx.stroke();
+  // ── キャノピー（俯瞰で見た半球）
+  // 上から見ると楕円形に見える。前方(右)が丸く、後方(左)が細くなる
+  const canGrd = iconCtx.createRadialGradient(-2,-4,2,0,0,18);
+  canGrd.addColorStop(0,'rgba(255,255,255,0.95)');
+  canGrd.addColorStop(0.35,'rgba(255,140,66,0.92)');
+  canGrd.addColorStop(0.7,'rgba(220,60,30,0.95)');
+  canGrd.addColorStop(1,'rgba(150,30,10,0.9)');
 
-  // ── キャノピー内部リブ（縦線）
-  iconCtx.strokeStyle='rgba(255,255,255,0.3)'; iconCtx.lineWidth=0.7;
-  [[-12,-1,-10,-21],[-5,-2,-4,-23],[5,-2,4,-23],[12,-1,10,-21]].forEach(([x1,y1,x2,y2])=>{
-    iconCtx.beginPath(); iconCtx.moveTo(x1,y1); iconCtx.lineTo(x2,y2); iconCtx.stroke();
+  iconCtx.beginPath();
+  iconCtx.ellipse(4, 0, 20, 13, 0, 0, Math.PI*2);
+  iconCtx.fillStyle=canGrd; iconCtx.fill();
+  iconCtx.strokeStyle='rgba(180,50,20,0.5)'; iconCtx.lineWidth=0.8; iconCtx.stroke();
+
+  // キャノピーのセル境界線（縦リブ）
+  iconCtx.strokeStyle='rgba(255,255,255,0.25)'; iconCtx.lineWidth=0.6;
+  [-10,-5,0,5,10,15,18].forEach(dx => {
+    const rx = dx - 4;
+    const halfH = 13 * Math.sqrt(Math.max(0, 1 - (rx/20)**2));
+    if (halfH < 0.5) return;
+    iconCtx.beginPath();
+    iconCtx.moveTo(dx, -halfH);
+    iconCtx.lineTo(dx,  halfH);
+    iconCtx.stroke();
   });
 
-  // ── サスペンションライン
-  iconCtx.strokeStyle='rgba(255,140,66,0.9)'; iconCtx.lineWidth=0.9;
-  [[-15,0],[-7,-2],[0,-2],[7,-2],[15,0]].forEach(([lx,ly])=>{
-    iconCtx.beginPath(); iconCtx.moveTo(lx,ly); iconCtx.lineTo(0,14); iconCtx.stroke();
+  // キャノピー前縁ハイライト
+  iconCtx.beginPath();
+  iconCtx.ellipse(6, -3, 14, 5, -0.3, Math.PI*1.1, Math.PI*1.7);
+  iconCtx.strokeStyle='rgba(255,255,255,0.5)'; iconCtx.lineWidth=1.2; iconCtx.stroke();
+
+  // ── サスペンションライン（キャノピー後縁→パイロット）
+  iconCtx.strokeStyle='rgba(255,120,50,0.7)'; iconCtx.lineWidth=0.7;
+  [[-12,-8],[-12,0],[-12,8],[-6,-11],[-6,11]].forEach(([sx,sy])=>{
+    iconCtx.beginPath();
+    iconCtx.moveTo(sx, sy);
+    iconCtx.lineTo(-8, 0);
+    iconCtx.stroke();
   });
 
-  // ── ハーネス
-  const harnessGrd = iconCtx.createLinearGradient(-6,12,6,22);
-  harnessGrd.addColorStop(0,'#7a1c10');
-  harnessGrd.addColorStop(1,'#4a0e08');
-  const hx=-6,hy=12,hw=12,hh=10,hr=3;
-  iconCtx.beginPath();
-  iconCtx.moveTo(hx+hr,hy);
-  iconCtx.lineTo(hx+hw-hr,hy); iconCtx.arcTo(hx+hw,hy,hx+hw,hy+hr,hr);
-  iconCtx.lineTo(hx+hw,hy+hh-hr); iconCtx.arcTo(hx+hw,hy+hh,hx+hw-hr,hy+hh,hr);
-  iconCtx.lineTo(hx+hr,hy+hh); iconCtx.arcTo(hx,hy+hh,hx,hy+hh-hr,hr);
-  iconCtx.lineTo(hx,hy+hr); iconCtx.arcTo(hx,hy,hx+hr,hy,hr);
-  iconCtx.closePath();
-  iconCtx.fillStyle=harnessGrd; iconCtx.fill();
-  iconCtx.strokeStyle='rgba(255,107,53,0.7)'; iconCtx.lineWidth=0.8; iconCtx.stroke();
+  // ── パイロット＋ハーネス（俯瞰）
+  // ハーネス本体
+  const harGrd = iconCtx.createRadialGradient(-8,0,1,-8,0,7);
+  harGrd.addColorStop(0,'#c0390f');
+  harGrd.addColorStop(1,'#6a1208');
+  iconCtx.beginPath(); iconCtx.ellipse(-8,0,7,5,0,0,Math.PI*2);
+  iconCtx.fillStyle=harGrd; iconCtx.fill();
+  iconCtx.strokeStyle='rgba(255,100,40,0.5)'; iconCtx.lineWidth=0.7; iconCtx.stroke();
 
-  // ── パイロット（胴体）
-  const bodyGrd = iconCtx.createRadialGradient(0,19,1,0,19,7);
-  bodyGrd.addColorStop(0,'#c0390f');
-  bodyGrd.addColorStop(1,'#7a1c10');
-  iconCtx.beginPath(); iconCtx.ellipse(0,19,6,5,0,0,Math.PI*2);
-  iconCtx.fillStyle=bodyGrd; iconCtx.fill();
+  // ヘルメット（頭・円形）
+  const helGrd = iconCtx.createRadialGradient(-9,-1,0,-9,-1,4);
+  helGrd.addColorStop(0,'#ff7040');
+  helGrd.addColorStop(1,'#b03010');
+  iconCtx.beginPath(); iconCtx.arc(-8,0,3.5,0,Math.PI*2);
+  iconCtx.fillStyle=helGrd; iconCtx.fill();
 
-  // ── パイロット（ヘルメット）
-  const helmGrd = iconCtx.createRadialGradient(-1,10,0,-1,10,4);
-  helmGrd.addColorStop(0,'#ff6b35');
-  helmGrd.addColorStop(1,'#c0390f');
-  iconCtx.beginPath(); iconCtx.arc(0,10,4,0,Math.PI*2);
-  iconCtx.fillStyle=helmGrd; iconCtx.fill();
-  iconCtx.strokeStyle='rgba(255,140,66,0.6)'; iconCtx.lineWidth=0.6; iconCtx.stroke();
+  // バイザー
+  iconCtx.beginPath(); iconCtx.ellipse(-7,0,2.2,1.4,0,0,Math.PI*2);
+  iconCtx.fillStyle='rgba(120,210,255,0.65)'; iconCtx.fill();
 
-  // ── バイザー（シールド）
-  iconCtx.beginPath(); iconCtx.ellipse(0,11,2.5,1.8,0,0,Math.PI*2);
-  iconCtx.fillStyle='rgba(100,200,255,0.6)'; iconCtx.fill();
-
-  // ── モーターフレーム（円形）
-  iconCtx.beginPath(); iconCtx.arc(0,21,11,0,Math.PI*2);
-  iconCtx.strokeStyle='rgba(255,107,53,0.5)'; iconCtx.lineWidth=1.2;
+  // ── モーター（パイロットの後方）
+  // フレーム
+  iconCtx.beginPath(); iconCtx.arc(-15,0,7,0,Math.PI*2);
+  iconCtx.strokeStyle='rgba(255,107,53,0.6)'; iconCtx.lineWidth=1.0;
   iconCtx.setLineDash([2,2]); iconCtx.stroke(); iconCtx.setLineDash([]);
 
-  // ── プロペラ（十字）
-  iconCtx.save(); iconCtx.translate(0,21);
-  const propGrd1 = iconCtx.createLinearGradient(0,-9,0,9);
-  propGrd1.addColorStop(0,'rgba(255,107,53,0.9)');
-  propGrd1.addColorStop(1,'rgba(192,57,43,0.9)');
-  // 縦ブレード
-  iconCtx.beginPath(); iconCtx.ellipse(0,0,2,9,0,0,Math.PI*2);
-  iconCtx.fillStyle=propGrd1; iconCtx.fill();
-  // 横ブレード
-  iconCtx.beginPath(); iconCtx.ellipse(0,0,9,2,0,0,Math.PI*2);
-  iconCtx.fillStyle=propGrd1; iconCtx.fill();
-  // 中心ナット
+  // プロペラ（俯瞰で回転しているように放射状に）
+  iconCtx.save(); iconCtx.translate(-15,0);
+  const propGrd = iconCtx.createRadialGradient(0,0,0,0,0,6);
+  propGrd.addColorStop(0,'rgba(255,140,66,0.95)');
+  propGrd.addColorStop(1,'rgba(200,60,20,0.7)');
+  for(let i=0;i<4;i++){
+    iconCtx.save(); iconCtx.rotate(i*Math.PI/2);
+    iconCtx.beginPath(); iconCtx.ellipse(0,-4,1.8,4,0,0,Math.PI*2);
+    iconCtx.fillStyle=propGrd; iconCtx.fill();
+    iconCtx.restore();
+  }
+  // 中心ハブ
   iconCtx.beginPath(); iconCtx.arc(0,0,2,0,Math.PI*2);
   iconCtx.fillStyle='#ff8c42'; iconCtx.fill();
   iconCtx.restore();
 
+  // ── モーターとハーネスの接続フレーム
+  iconCtx.strokeStyle='rgba(255,107,53,0.4)'; iconCtx.lineWidth=1.0;
+  iconCtx.beginPath(); iconCtx.moveTo(-15,-4); iconCtx.lineTo(-14,-4); iconCtx.stroke();
+  iconCtx.beginPath(); iconCtx.moveTo(-15,4); iconCtx.lineTo(-14,4); iconCtx.stroke();
+
+  iconCtx.restore(); // scale
+
+  // ── 影（地面への投影感）
+  // scaleを戻した後に薄い楕円を描く
+  iconCtx.save();
+  iconCtx.scale(1, 0.3);
+  iconCtx.beginPath(); iconCtx.arc(6*S, 0, 20*S, 0, Math.PI*2);
+  iconCtx.fillStyle='rgba(0,0,0,0.12)'; iconCtx.fill();
   iconCtx.restore();
 
-  // ── 高度ラベル（回転なし・スクリーン座標で描画）
+  iconCtx.restore(); // translate+rotate
+
+  // ── 高度ラベル（回転なし、スクリーン座標）
   iconCtx.save();
   iconCtx.font='bold 13px sans-serif';
   iconCtx.textAlign='center';
   iconCtx.shadowColor='rgba(0,0,0,0.9)'; iconCtx.shadowBlur=5;
   iconCtx.fillStyle='#ff8c42';
-  iconCtx.fillText(Math.round(cur.alt)+' m', px, py - 50);
+  iconCtx.fillText(Math.round(cur.alt)+' m', px, py - 55);
   iconCtx.restore();
 }
 
