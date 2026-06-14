@@ -531,9 +531,16 @@ function fitAll(){
 // ホイールズーム（追従中）
 viewer.scene.canvas.addEventListener('wheel',e=>{
   if(!followMode) return;
-  followDistance*=e.deltaY>0?1.15:0.87;
-  followDistance=Math.max(200,Math.min(followDistance,100000));
-},{passive:true});
+  e.preventDefault();
+  followDistance*=e.deltaY>0?1.2:0.8;
+  followDistance=Math.max(50,Math.min(followDistance,100000));
+  // 即座に反映
+  if(aircraftEntity&&pts.length){
+    const cur=pts[headIdx()];
+    const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
+    viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
+  }
+},{passive:false});
 
 // ── データ読み込み
 function loadFlightData(data) {
