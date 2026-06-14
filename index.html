@@ -148,9 +148,10 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 </div>
 
 <div id="rc">
-  <button class="cbtn on" id="b3d"  onclick="toggle3D()"    title="3D/2D">3D</button>
-  <button class="cbtn"    id="bFol" onclick="toggleFollow()" title="機体追従">🎯</button>
-  <button class="cbtn"              onclick="fitAll()"        title="全体表示">⛶</button>
+  <button class="cbtn on" id="b3d"    onclick="toggle3D()"     title="3D/2D">3D</button>
+  <button class="cbtn on" id="bPanel" onclick="togglePanel()"  title="パネル表示/非表示">☰</button>
+  <button class="cbtn"    id="bFol"   onclick="toggleFollow()"  title="機体追従">🎯</button>
+  <button class="cbtn"                onclick="fitAll()"         title="全体表示">⛶</button>
 </div>
 
 <div class="panel" id="hud">
@@ -202,9 +203,8 @@ viewer.scene.skyAtmosphere.show = true;
 let pts=[], bnds=null, playhead=0, playing=false, rafId=null, prevTs=null;
 let zScale=1, trailW=3, is3D=true, followMode=false, frameCount=0;
 let followDistance=8000, followHeading=0, followPitch=Cesium.Math.toRadians(-35);
-let trailEntities=[], markerStart=null, markerEnd=null, aircraftEntity=null, tailEntity=null, tailGlowEntity=null;
+let trailEntities=[], markerStart=null, markerEnd=null, aircraftEntity=null;
 
-const TAIL_SEC = 8;
 
 function totalDur(){ return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time); }
 function headIdx(){ return Math.min(Math.floor(playhead*(pts.length-1)),pts.length-1); }
@@ -320,8 +320,6 @@ function clearEntities() {
   if(markerStart){viewer.entities.remove(markerStart);markerStart=null;}
   if(markerEnd){viewer.entities.remove(markerEnd);markerEnd=null;}
   if(aircraftEntity){viewer.entities.remove(aircraftEntity);aircraftEntity=null;}
-  if(tailEntity){viewer.entities.remove(tailEntity);tailEntity=null;}
-  if(tailGlowEntity){viewer.entities.remove(tailGlowEntity);tailGlowEntity=null;}
 }
 
 const ICON='data:image/svg+xml,'+encodeURIComponent(
@@ -367,21 +365,6 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
-  // 直近テール（buildTrailで初期作成）
-  const initTp = [
-    Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-    Cesium.Cartesian3.fromDegrees(pts[Math.min(1,pts.length-1)].lon,pts[Math.min(1,pts.length-1)].lat,pts[Math.min(1,pts.length-1)].alt*zScale),
-  ];
-  tailGlowEntity = viewer.entities.add({
-    polyline:{positions:initTp, width:trailW+8,
-      material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
-      clampToGround:false}
-  });
-  tailEntity = viewer.entities.add({
-    polyline:{positions:initTp, width:trailW+3,
-      material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
-      clampToGround:false}
-  });
   // スタート/エンドマーカー
   markerStart=viewer.entities.add({
     position:Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
@@ -413,10 +396,6 @@ function updateAircraft() {
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
   // テール更新
-  if(hi>0 && tailEntity) {
-    // テールは30フレームに1回だけ更新（毎フレーム更新するとクラッシュ）
-    if(frameCount%30===0) updateTail(hi, cur);
-  }
   // アイコンスケール
   const camHeight=viewer.camera.positionCartographic.height;
   const minH=500,maxH=200000,minS=0.6,maxS=0.08;
@@ -425,29 +404,6 @@ function updateAircraft() {
   // 追従
   if(followMode){
     viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
-  }
-}
-
-function updateTail(hi, cur) {
-  if(!pts.length || !tailEntity) return;
-  let tailStart=hi;
-  for(let i=hi;i>=0;i--){tailStart=i;if(pts[i].time<=cur.time-TAIL_SEC)break;}
-  const tp=[];
-  for(let i=tailStart;i<=hi;i++)
-    tp.push(Cesium.Cartesian3.fromDegrees(pts[i].lon,pts[i].lat,pts[i].alt*zScale));
-  if(tp.length>=2){
-    if(tailGlowEntity){viewer.entities.remove(tailGlowEntity);}
-    if(tailEntity){viewer.entities.remove(tailEntity);}
-    tailGlowEntity=viewer.entities.add({
-      polyline:{positions:tp,width:trailW+8,
-        material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.5,0.25)),
-        clampToGround:false}
-    });
-    tailEntity=viewer.entities.add({
-      polyline:{positions:tp,width:trailW+3,
-        material:new Cesium.ColorMaterialProperty(new Cesium.Color(1.0,1.0,0.3,1.0)),
-        clampToGround:false}
-    });
   }
 }
 
@@ -543,6 +499,18 @@ function drawAltChart() {
 // ── カメラ操作
 function setWidth(v){trailW=v;document.getElementById('wvl').textContent=v+'px';if(pts.length){buildTrail();updateAircraft();}}
 function toggle3D(){is3D=!is3D;document.getElementById('b3d').classList.toggle('on',is3D);is3D?viewer.scene.morphTo3D(0.5):viewer.scene.morphTo2D(0.5);}
+function togglePanel(){
+  const side=document.getElementById('side');
+  const header=document.getElementById('header');
+  const hud=document.getElementById('hud');
+  const btn=document.getElementById('bPanel');
+  const hidden=side.style.display==='none';
+  side.style.display=hidden?'flex':'none';
+  header.style.display=hidden?'flex':'none';
+  if(!hidden) hud.style.left='12px';
+  else hud.style.left='272px';
+  btn.classList.toggle('on',hidden);
+}
 function fitAll(){
   if(!pts.length) return;
   viewer.camera.flyToBoundingSphere(
