@@ -375,9 +375,13 @@ function buildTrail() {
   }
 
   // 直近テール（白色・毎フレーム更新）
+  const initTailPos = new Cesium.ConstantProperty(
+    [Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale),
+     Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale)]
+  );
   tailEntity = viewer.entities.add({
     polyline:{
-      positions: [Cesium.Cartesian3.fromDegrees(pts[0].lon, pts[0].lat, pts[0].alt*zScale)],
+      positions: initTailPos,
       width: trailW + 1,
       material: new Cesium.ColorMaterialProperty(new Cesium.Color(1.0, 1.0, 1.0, 0.95)),
       clampToGround: false,
@@ -411,7 +415,7 @@ function updateAircraft() {
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
 
   // 直近テール座標を更新
-  if(tailEntity) {
+  if(tailEntity && hi > 0) {
     const curTime = cur.time;
     let tailStart = hi;
     for(let i=hi; i>=0; i--) {
@@ -421,7 +425,8 @@ function updateAircraft() {
     const tailPositions = [];
     for(let i=tailStart; i<=hi; i++)
       tailPositions.push(Cesium.Cartesian3.fromDegrees(pts[i].lon, pts[i].lat, pts[i].alt*zScale));
-    tailEntity.polyline.positions = tailPositions;
+    if(tailPositions.length >= 2)
+      tailEntity.polyline.positions = new Cesium.ConstantProperty(tailPositions);
   }
 
   // カメラ高度に応じてアイコンサイズを動的に変更
