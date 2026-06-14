@@ -534,43 +534,112 @@ function drawIcon() {
   iconCtx.translate(px, py);
   iconCtx.rotate(heading);
 
-  // グロー
-  const grd = iconCtx.createRadialGradient(0,0,4,0,0,30);
-  grd.addColorStop(0,'rgba(245,200,66,0.55)');
-  grd.addColorStop(1,'rgba(245,200,66,0)');
-  iconCtx.beginPath(); iconCtx.arc(0,0,30,0,Math.PI*2);
-  iconCtx.fillStyle=grd; iconCtx.fill();
+  // ── 外側グロー（オレンジ）
+  const grdOuter = iconCtx.createRadialGradient(0,0,8,0,0,44);
+  grdOuter.addColorStop(0,'rgba(255,107,53,0.35)');
+  grdOuter.addColorStop(1,'rgba(255,107,53,0)');
+  iconCtx.beginPath(); iconCtx.arc(0,0,44,0,Math.PI*2);
+  iconCtx.fillStyle=grdOuter; iconCtx.fill();
 
-  const S = 1.7;
+  // ── 内側グロー（レッド）
+  const grdInner = iconCtx.createRadialGradient(0,0,4,0,0,28);
+  grdInner.addColorStop(0,'rgba(192,57,43,0.5)');
+  grdInner.addColorStop(1,'rgba(192,57,43,0)');
+  iconCtx.beginPath(); iconCtx.arc(0,0,28,0,Math.PI*2);
+  iconCtx.fillStyle=grdInner; iconCtx.fill();
+
+  const S = 1.9;
   iconCtx.scale(S, S);
 
-  // キャノピー
-  iconCtx.beginPath(); iconCtx.arc(0,-5,9,Math.PI,0,false);
-  iconCtx.strokeStyle='#f5c842'; iconCtx.lineWidth=2.2; iconCtx.stroke();
+  // ── キャノピー（グラデーション塗り）
+  const canopyGrd = iconCtx.createLinearGradient(0,-24,0,0);
+  canopyGrd.addColorStop(0,'rgba(255,255,255,0.85)');
+  canopyGrd.addColorStop(0.5,'rgba(255,107,53,0.9)');
+  canopyGrd.addColorStop(1,'rgba(192,57,43,0.95)');
+  iconCtx.beginPath();
+  iconCtx.moveTo(-20,0);
+  iconCtx.quadraticCurveTo(-15,-22,0,-24);
+  iconCtx.quadraticCurveTo(15,-22,20,0);
+  iconCtx.closePath();
+  iconCtx.fillStyle=canopyGrd; iconCtx.fill();
+  iconCtx.strokeStyle='rgba(255,107,53,0.8)'; iconCtx.lineWidth=1.2; iconCtx.stroke();
 
-  // ライン
-  iconCtx.strokeStyle='rgba(245,200,66,0.7)'; iconCtx.lineWidth=0.8;
-  [[-8,-5],[-4,-4],[0,-4],[4,-4],[8,-5]].forEach(([lx,ly])=>{
-    iconCtx.beginPath(); iconCtx.moveTo(lx,ly); iconCtx.lineTo(0,4); iconCtx.stroke();
+  // ── キャノピー内部リブ（縦線）
+  iconCtx.strokeStyle='rgba(255,255,255,0.3)'; iconCtx.lineWidth=0.7;
+  [[-12,-1,-10,-21],[-5,-2,-4,-23],[5,-2,4,-23],[12,-1,10,-21]].forEach(([x1,y1,x2,y2])=>{
+    iconCtx.beginPath(); iconCtx.moveTo(x1,y1); iconCtx.lineTo(x2,y2); iconCtx.stroke();
   });
 
-  // パイロット
-  iconCtx.beginPath(); iconCtx.arc(0,5,3,0,Math.PI*2);
-  iconCtx.fillStyle='#f5c842'; iconCtx.fill();
+  // ── サスペンションライン
+  iconCtx.strokeStyle='rgba(255,140,66,0.9)'; iconCtx.lineWidth=0.9;
+  [[-15,0],[-7,-2],[0,-2],[7,-2],[15,0]].forEach(([lx,ly])=>{
+    iconCtx.beginPath(); iconCtx.moveTo(lx,ly); iconCtx.lineTo(0,14); iconCtx.stroke();
+  });
 
-  // モーターリング
-  iconCtx.beginPath(); iconCtx.arc(0,6.5,4.5,0,Math.PI*2);
-  iconCtx.strokeStyle='rgba(245,200,66,0.45)'; iconCtx.lineWidth=1.2; iconCtx.stroke();
+  // ── ハーネス
+  const harnessGrd = iconCtx.createLinearGradient(-6,12,6,22);
+  harnessGrd.addColorStop(0,'#7a1c10');
+  harnessGrd.addColorStop(1,'#4a0e08');
+  const hx=-6,hy=12,hw=12,hh=10,hr=3;
+  iconCtx.beginPath();
+  iconCtx.moveTo(hx+hr,hy);
+  iconCtx.lineTo(hx+hw-hr,hy); iconCtx.arcTo(hx+hw,hy,hx+hw,hy+hr,hr);
+  iconCtx.lineTo(hx+hw,hy+hh-hr); iconCtx.arcTo(hx+hw,hy+hh,hx+hw-hr,hy+hh,hr);
+  iconCtx.lineTo(hx+hr,hy+hh); iconCtx.arcTo(hx,hy+hh,hx,hy+hh-hr,hr);
+  iconCtx.lineTo(hx,hy+hr); iconCtx.arcTo(hx,hy,hx+hr,hy,hr);
+  iconCtx.closePath();
+  iconCtx.fillStyle=harnessGrd; iconCtx.fill();
+  iconCtx.strokeStyle='rgba(255,107,53,0.7)'; iconCtx.lineWidth=0.8; iconCtx.stroke();
+
+  // ── パイロット（胴体）
+  const bodyGrd = iconCtx.createRadialGradient(0,19,1,0,19,7);
+  bodyGrd.addColorStop(0,'#c0390f');
+  bodyGrd.addColorStop(1,'#7a1c10');
+  iconCtx.beginPath(); iconCtx.ellipse(0,19,6,5,0,0,Math.PI*2);
+  iconCtx.fillStyle=bodyGrd; iconCtx.fill();
+
+  // ── パイロット（ヘルメット）
+  const helmGrd = iconCtx.createRadialGradient(-1,10,0,-1,10,4);
+  helmGrd.addColorStop(0,'#ff6b35');
+  helmGrd.addColorStop(1,'#c0390f');
+  iconCtx.beginPath(); iconCtx.arc(0,10,4,0,Math.PI*2);
+  iconCtx.fillStyle=helmGrd; iconCtx.fill();
+  iconCtx.strokeStyle='rgba(255,140,66,0.6)'; iconCtx.lineWidth=0.6; iconCtx.stroke();
+
+  // ── バイザー（シールド）
+  iconCtx.beginPath(); iconCtx.ellipse(0,11,2.5,1.8,0,0,Math.PI*2);
+  iconCtx.fillStyle='rgba(100,200,255,0.6)'; iconCtx.fill();
+
+  // ── モーターフレーム（円形）
+  iconCtx.beginPath(); iconCtx.arc(0,21,11,0,Math.PI*2);
+  iconCtx.strokeStyle='rgba(255,107,53,0.5)'; iconCtx.lineWidth=1.2;
+  iconCtx.setLineDash([2,2]); iconCtx.stroke(); iconCtx.setLineDash([]);
+
+  // ── プロペラ（十字）
+  iconCtx.save(); iconCtx.translate(0,21);
+  const propGrd1 = iconCtx.createLinearGradient(0,-9,0,9);
+  propGrd1.addColorStop(0,'rgba(255,107,53,0.9)');
+  propGrd1.addColorStop(1,'rgba(192,57,43,0.9)');
+  // 縦ブレード
+  iconCtx.beginPath(); iconCtx.ellipse(0,0,2,9,0,0,Math.PI*2);
+  iconCtx.fillStyle=propGrd1; iconCtx.fill();
+  // 横ブレード
+  iconCtx.beginPath(); iconCtx.ellipse(0,0,9,2,0,0,Math.PI*2);
+  iconCtx.fillStyle=propGrd1; iconCtx.fill();
+  // 中心ナット
+  iconCtx.beginPath(); iconCtx.arc(0,0,2,0,Math.PI*2);
+  iconCtx.fillStyle='#ff8c42'; iconCtx.fill();
+  iconCtx.restore();
 
   iconCtx.restore();
 
-  // 高度ラベル
+  // ── 高度ラベル（回転なし・スクリーン座標で描画）
   iconCtx.save();
-  iconCtx.font='bold 12px sans-serif';
-  iconCtx.fillStyle='rgba(245,200,66,0.95)';
+  iconCtx.font='bold 13px sans-serif';
   iconCtx.textAlign='center';
-  iconCtx.shadowColor='rgba(0,0,0,0.8)'; iconCtx.shadowBlur=4;
-  iconCtx.fillText(Math.round(cur.alt)+' m', px, py-36);
+  iconCtx.shadowColor='rgba(0,0,0,0.9)'; iconCtx.shadowBlur=5;
+  iconCtx.fillStyle='#ff8c42';
+  iconCtx.fillText(Math.round(cur.alt)+' m', px, py - 50);
   iconCtx.restore();
 }
 
