@@ -198,6 +198,16 @@ viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.0002;
 viewer.scene.skyAtmosphere.show = true;
 
+// ズーム・移動時にもアイコンサイズを即時更新
+viewer.camera.changed.addEventListener(() => {
+  if(aircraftEntity && pts.length) {
+    const camHeight = viewer.camera.positionCartographic.height;
+    const minH=500, maxH=200000, minS=2.5, maxS=0.3;
+    const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
+    aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
+  }
+});
+
 // ── ユーティリティ
 function fmtTime(sec) {
   sec = Math.max(0, Math.floor(sec));
@@ -373,7 +383,6 @@ function buildTrail() {
     position:new Cesium.ConstantPositionProperty(p0),
     billboard:{image:ICON,width:96,height:60,
       verticalOrigin:Cesium.VerticalOrigin.CENTER,horizontalOrigin:Cesium.HorizontalOrigin.CENTER,
-      scaleByDistance:new Cesium.NearFarScalar(1e3,1.6,2e5,0.6),
       disableDepthTestDistance:Number.POSITIVE_INFINITY},
     label:{text:Math.round(pts[0].alt)+' m',font:'bold 13px sans-serif',
       fillColor:Cesium.Color.fromCssColorString('#f5c842'),outlineColor:Cesium.Color.BLACK,outlineWidth:3,
@@ -387,6 +396,13 @@ function updateAircraft() {
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
+
+  // カメラ高度に応じてアイコンサイズを動的に変更
+  const camHeight = viewer.camera.positionCartographic.height;
+  const minH=500, maxH=200000, minS=2.5, maxS=0.3;
+  const t = Math.max(0, Math.min(1, (Math.log(camHeight) - Math.log(minH)) / (Math.log(maxH) - Math.log(minH))));
+  aircraftEntity.billboard.scale = minS + (maxS - minS) * t;
+
   // 追従：現在のheading/pitch/距離を維持しながら機体位置に追従
   if(followMode) {
     viewer.camera.lookAt(
