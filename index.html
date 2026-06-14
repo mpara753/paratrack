@@ -511,6 +511,118 @@ function resizeIconCanvas() {
 window.addEventListener('resize', resizeIconCanvas);
 resizeIconCanvas();
 
+// ══════════════════════════════════════════
+// 8方向パラグライダーアイコン描画
+// 進行方向に最も近い45°刻みを選択して表示
+// 各方向：キャノピーが前方、モーターが後方の側面図
+// ══════════════════════════════════════════
+
+// 1つのアイコンを描く（中心(0,0)、進行方向=右(+X)、スケール済み座標系で描く）
+// dirAngle: 0=右, PI/4=右下, PI/2=下, ... (8方向)
+// このアイコンは「右向き飛行」の基本形。回転で8方向に対応。
+function drawParaIcon(ctx, dirAngle) {
+  ctx.save();
+  ctx.rotate(dirAngle);
+
+  // ─ グロー
+  const gO = ctx.createRadialGradient(0,0,5,0,0,40);
+  gO.addColorStop(0,'rgba(255,100,40,0.45)');
+  gO.addColorStop(1,'rgba(255,100,40,0)');
+  ctx.beginPath(); ctx.arc(0,0,40,0,Math.PI*2);
+  ctx.fillStyle=gO; ctx.fill();
+
+  // ─ キャノピー（右=前方、半楕円を横から）
+  // 正面視点：大きな丸いドーム
+  const cGrd = ctx.createRadialGradient(-4,-6,2,0,0,20);
+  cGrd.addColorStop(0,'rgba(255,255,255,0.92)');
+  cGrd.addColorStop(0.3,'rgba(255,140,60,0.95)');
+  cGrd.addColorStop(0.7,'rgba(220,55,25,0.97)');
+  cGrd.addColorStop(1,'rgba(140,25,10,0.9)');
+
+  // キャノピー本体（前方の大きな半円）
+  ctx.beginPath();
+  ctx.arc(8, 0, 20, -Math.PI*0.72, Math.PI*0.72, false);
+  ctx.lineTo(8, 0);
+  ctx.closePath();
+  ctx.fillStyle=cGrd; ctx.fill();
+  ctx.strokeStyle='rgba(200,60,20,0.5)'; ctx.lineWidth=1.0; ctx.stroke();
+
+  // キャノピーのセル境界線
+  ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=0.7;
+  for(let i=-3;i<=3;i++){
+    const yPos = i * 4.5;
+    const xOff = 8 - Math.sqrt(Math.max(0, 400 - yPos*yPos));
+    ctx.beginPath(); ctx.moveTo(xOff, yPos); ctx.lineTo(28, yPos); ctx.stroke();
+  }
+
+  // キャノピー前縁ハイライト
+  ctx.beginPath();
+  ctx.arc(8, 0, 20, -Math.PI*0.5, Math.PI*0.5, false);
+  ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2.0; ctx.stroke();
+
+  // ─ ライザー（キャノピー後縁→ハーネス）
+  ctx.strokeStyle='rgba(255,130,50,0.8)'; ctx.lineWidth=1.0;
+  [[-12,-8],[-8,-14],[0,-16],[0,16],[-8,14],[-12,8]].forEach(([sx,sy])=>{
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(-14,0); ctx.stroke();
+  });
+
+  // ─ ハーネス本体
+  const hGrd = ctx.createLinearGradient(-18,-6,-8,6);
+  hGrd.addColorStop(0,'#8a2010'); hGrd.addColorStop(1,'#4a0e08');
+  ctx.beginPath(); ctx.ellipse(-14,0,6,8,0,0,Math.PI*2);
+  ctx.fillStyle=hGrd; ctx.fill();
+  ctx.strokeStyle='rgba(255,100,40,0.4)'; ctx.lineWidth=0.8; ctx.stroke();
+
+  // ─ パイロット（ハーネスの前上部）
+  const pGrd = ctx.createRadialGradient(-12,-4,0,-12,-4,5);
+  pGrd.addColorStop(0,'#ff7040'); pGrd.addColorStop(1,'#aa2a10');
+  ctx.beginPath(); ctx.arc(-12,-3,5,0,Math.PI*2);
+  ctx.fillStyle=pGrd; ctx.fill();
+
+  // ヘルメット
+  ctx.beginPath(); ctx.arc(-11,-6,3.5,0,Math.PI*2);
+  ctx.fillStyle='#ff6030'; ctx.fill();
+  ctx.strokeStyle='rgba(255,160,60,0.6)'; ctx.lineWidth=0.6; ctx.stroke();
+
+  // バイザー
+  ctx.beginPath(); ctx.ellipse(-10,-5.5,2,1.3,0.3,0,Math.PI*2);
+  ctx.fillStyle='rgba(120,220,255,0.7)'; ctx.fill();
+
+  // ─ モーターフレーム（ハーネス後方）
+  ctx.beginPath(); ctx.arc(-22,0,10,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,107,53,0.55)'; ctx.lineWidth=1.2;
+  ctx.setLineDash([2,2.5]); ctx.stroke(); ctx.setLineDash([]);
+
+  // ─ プロペラブレード（モーター中心）
+  const prGrd = ctx.createLinearGradient(-22,-9,-22,9);
+  prGrd.addColorStop(0,'rgba(255,140,60,0.9)');
+  prGrd.addColorStop(1,'rgba(180,50,15,0.9)');
+  ctx.save(); ctx.translate(-22,0);
+  for(let i=0;i<4;i++){
+    ctx.save(); ctx.rotate(i*Math.PI/2);
+    ctx.beginPath(); ctx.ellipse(0,-5,2.2,5,0,0,Math.PI*2);
+    ctx.fillStyle=prGrd; ctx.fill();
+    ctx.restore();
+  }
+  // ハブ
+  ctx.beginPath(); ctx.arc(0,0,2.2,0,Math.PI*2);
+  ctx.fillStyle='#ff8c42'; ctx.fill();
+  ctx.restore();
+
+  // ─ 胴体接続（ハーネス↔モーター）
+  ctx.strokeStyle='rgba(255,107,53,0.35)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(-20,-4); ctx.lineTo(-14,-4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-20,4);  ctx.lineTo(-14,4);  ctx.stroke();
+
+  // ─ 地面影（薄い楕円）
+  ctx.save(); ctx.scale(1,0.28);
+  ctx.beginPath(); ctx.arc(0,0,32,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,0,0,0.10)'; ctx.fill();
+  ctx.restore();
+
+  ctx.restore(); // dirAngle回転を戻す
+}
+
 function drawIcon() {
   iconCtx.clearRect(0, 0, iconCvs.width, iconCvs.height);
   if (!pts.length) return;
@@ -522,140 +634,35 @@ function drawIcon() {
 
   if (px < -60 || py < -60 || px > iconCvs.width+60 || py > iconCvs.height+60) return;
 
-  // 進行方向（+Math.PI/2 を除去して正しい向きに）
-  let heading = 0;
+  // ── 進行方向を計算（地図の北=上を考慮）
+  let headingRad = 0;
   if (hi > 0) {
     const prev = pts[hi-1];
     const pp = map.project([prev.lon, prev.lat]);
-    heading = Math.atan2(py - pp.y, px - pp.x);
+    headingRad = Math.atan2(py - pp.y, px - pp.x); // スクリーン座標系
   }
 
+  // ── 8方向スナップ（45°刻み）
+  // 0=右(E), π/4=右下(SE), π/2=下(S), 3π/4=左下(SW),
+  // ±π=左(W), -3π/4=左上(NW), -π/2=上(N), -π/4=右上(NE)
+  const snap = Math.round(headingRad / (Math.PI/4)) * (Math.PI/4);
+
+  // ── 描画
   iconCtx.save();
   iconCtx.translate(px, py);
-  iconCtx.rotate(heading);
+  iconCtx.scale(1.0, 1.0);
 
-  // ── グロー
-  const grdO = iconCtx.createRadialGradient(0,0,6,0,0,46);
-  grdO.addColorStop(0,'rgba(255,107,53,0.40)');
-  grdO.addColorStop(1,'rgba(255,107,53,0)');
-  iconCtx.beginPath(); iconCtx.arc(0,0,46,0,Math.PI*2);
-  iconCtx.fillStyle=grdO; iconCtx.fill();
+  drawParaIcon(iconCtx, snap);
 
-  // ════════════════════════════════
-  // 3D俯瞰パラグライダー
-  // 進行方向 → 右（+X方向）
-  // キャノピーは機体前方（右）に浮かぶ大きな半球
-  // パイロット・モーターは中央〜後方（左寄り）
-  // ════════════════════════════════
-
-  const S = 2.0;
-  iconCtx.scale(S, S);
-
-  // ── キャノピー（俯瞰で見た半球）
-  // 上から見ると楕円形に見える。前方(右)が丸く、後方(左)が細くなる
-  const canGrd = iconCtx.createRadialGradient(-2,-4,2,0,0,18);
-  canGrd.addColorStop(0,'rgba(255,255,255,0.95)');
-  canGrd.addColorStop(0.35,'rgba(255,140,66,0.92)');
-  canGrd.addColorStop(0.7,'rgba(220,60,30,0.95)');
-  canGrd.addColorStop(1,'rgba(150,30,10,0.9)');
-
-  iconCtx.beginPath();
-  iconCtx.ellipse(4, 0, 20, 13, 0, 0, Math.PI*2);
-  iconCtx.fillStyle=canGrd; iconCtx.fill();
-  iconCtx.strokeStyle='rgba(180,50,20,0.5)'; iconCtx.lineWidth=0.8; iconCtx.stroke();
-
-  // キャノピーのセル境界線（縦リブ）
-  iconCtx.strokeStyle='rgba(255,255,255,0.25)'; iconCtx.lineWidth=0.6;
-  [-10,-5,0,5,10,15,18].forEach(dx => {
-    const rx = dx - 4;
-    const halfH = 13 * Math.sqrt(Math.max(0, 1 - (rx/20)**2));
-    if (halfH < 0.5) return;
-    iconCtx.beginPath();
-    iconCtx.moveTo(dx, -halfH);
-    iconCtx.lineTo(dx,  halfH);
-    iconCtx.stroke();
-  });
-
-  // キャノピー前縁ハイライト
-  iconCtx.beginPath();
-  iconCtx.ellipse(6, -3, 14, 5, -0.3, Math.PI*1.1, Math.PI*1.7);
-  iconCtx.strokeStyle='rgba(255,255,255,0.5)'; iconCtx.lineWidth=1.2; iconCtx.stroke();
-
-  // ── サスペンションライン（キャノピー後縁→パイロット）
-  iconCtx.strokeStyle='rgba(255,120,50,0.7)'; iconCtx.lineWidth=0.7;
-  [[-12,-8],[-12,0],[-12,8],[-6,-11],[-6,11]].forEach(([sx,sy])=>{
-    iconCtx.beginPath();
-    iconCtx.moveTo(sx, sy);
-    iconCtx.lineTo(-8, 0);
-    iconCtx.stroke();
-  });
-
-  // ── パイロット＋ハーネス（俯瞰）
-  // ハーネス本体
-  const harGrd = iconCtx.createRadialGradient(-8,0,1,-8,0,7);
-  harGrd.addColorStop(0,'#c0390f');
-  harGrd.addColorStop(1,'#6a1208');
-  iconCtx.beginPath(); iconCtx.ellipse(-8,0,7,5,0,0,Math.PI*2);
-  iconCtx.fillStyle=harGrd; iconCtx.fill();
-  iconCtx.strokeStyle='rgba(255,100,40,0.5)'; iconCtx.lineWidth=0.7; iconCtx.stroke();
-
-  // ヘルメット（頭・円形）
-  const helGrd = iconCtx.createRadialGradient(-9,-1,0,-9,-1,4);
-  helGrd.addColorStop(0,'#ff7040');
-  helGrd.addColorStop(1,'#b03010');
-  iconCtx.beginPath(); iconCtx.arc(-8,0,3.5,0,Math.PI*2);
-  iconCtx.fillStyle=helGrd; iconCtx.fill();
-
-  // バイザー
-  iconCtx.beginPath(); iconCtx.ellipse(-7,0,2.2,1.4,0,0,Math.PI*2);
-  iconCtx.fillStyle='rgba(120,210,255,0.65)'; iconCtx.fill();
-
-  // ── モーター（パイロットの後方）
-  // フレーム
-  iconCtx.beginPath(); iconCtx.arc(-15,0,7,0,Math.PI*2);
-  iconCtx.strokeStyle='rgba(255,107,53,0.6)'; iconCtx.lineWidth=1.0;
-  iconCtx.setLineDash([2,2]); iconCtx.stroke(); iconCtx.setLineDash([]);
-
-  // プロペラ（俯瞰で回転しているように放射状に）
-  iconCtx.save(); iconCtx.translate(-15,0);
-  const propGrd = iconCtx.createRadialGradient(0,0,0,0,0,6);
-  propGrd.addColorStop(0,'rgba(255,140,66,0.95)');
-  propGrd.addColorStop(1,'rgba(200,60,20,0.7)');
-  for(let i=0;i<4;i++){
-    iconCtx.save(); iconCtx.rotate(i*Math.PI/2);
-    iconCtx.beginPath(); iconCtx.ellipse(0,-4,1.8,4,0,0,Math.PI*2);
-    iconCtx.fillStyle=propGrd; iconCtx.fill();
-    iconCtx.restore();
-  }
-  // 中心ハブ
-  iconCtx.beginPath(); iconCtx.arc(0,0,2,0,Math.PI*2);
-  iconCtx.fillStyle='#ff8c42'; iconCtx.fill();
   iconCtx.restore();
 
-  // ── モーターとハーネスの接続フレーム
-  iconCtx.strokeStyle='rgba(255,107,53,0.4)'; iconCtx.lineWidth=1.0;
-  iconCtx.beginPath(); iconCtx.moveTo(-15,-4); iconCtx.lineTo(-14,-4); iconCtx.stroke();
-  iconCtx.beginPath(); iconCtx.moveTo(-15,4); iconCtx.lineTo(-14,4); iconCtx.stroke();
-
-  iconCtx.restore(); // scale
-
-  // ── 影（地面への投影感）
-  // scaleを戻した後に薄い楕円を描く
-  iconCtx.save();
-  iconCtx.scale(1, 0.3);
-  iconCtx.beginPath(); iconCtx.arc(6*S, 0, 20*S, 0, Math.PI*2);
-  iconCtx.fillStyle='rgba(0,0,0,0.12)'; iconCtx.fill();
-  iconCtx.restore();
-
-  iconCtx.restore(); // translate+rotate
-
-  // ── 高度ラベル（回転なし、スクリーン座標）
+  // ── 高度ラベル（スクリーン座標、回転なし）
   iconCtx.save();
   iconCtx.font='bold 13px sans-serif';
   iconCtx.textAlign='center';
   iconCtx.shadowColor='rgba(0,0,0,0.9)'; iconCtx.shadowBlur=5;
   iconCtx.fillStyle='#ff8c42';
-  iconCtx.fillText(Math.round(cur.alt)+' m', px, py - 55);
+  iconCtx.fillText(Math.round(cur.alt)+' m', px, py - 48);
   iconCtx.restore();
 }
 
