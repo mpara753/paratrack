@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%AA%82</text></svg>">
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
 <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhWY2oMHBgsHx4GPpPvXTPyuRkz8TePtg" defer></script>
 <style>
 * { margin:0; padding:0; }
 html,body,#cesiumContainer { width:100%; height:100%; overflow:hidden; }
@@ -74,6 +75,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 <body>
 
 <div id="cesiumContainer"></div>
+<div id="gmapContainer" style="position:absolute;inset:0;z-index:0;display:none;"></div>
 
 <div id="ov">
   <div class="ucard" id="dz">
@@ -157,6 +159,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
   <button class="cbtn on" id="bPanel" onclick="togglePanel()"  title="パネル表示/非表示">☰</button>
   <button class="cbtn"    id="bFol"   onclick="toggleFollow()"  title="機体追従">🎯</button>
   <button class="cbtn"                onclick="fitAll()"         title="全体表示">⛶</button>
+  <button class="cbtn on" id="bMap"   onclick="toggleMapEngine()" title="Cesium/Google Maps切替">🌍</button>
 </div>
 
 <div class="panel" id="hud">
@@ -506,7 +509,100 @@ function generateDemo() {
   return pts;
 }
 
-// ── 地図レイヤー切替
+// ── 地図エンジン切替
+let mapEngine = 'cesium'; // 'cesium' | 'gmap'
+let gmap = null;
+let gmapPolylines = [];
+let gmapMarker = null;
+
+function initGoogleMap() {
+  if(gmap) return;
+  gmap = new google.maps.Map(document.getElementById('gmapContainer'), {
+    center: {lat:35.3606, lng:138.7274},
+    zoom: 10,
+    mapTypeId: 'satellite',
+    disableDefaultUI: true,
+    zoomControl: true,
+  });
+}
+
+function toggleMapEngine() {
+  if(mapEngine === 'cesium') {
+    // Cesium → Google Maps
+    mapEngine = 'gmap';
+    document.getElementById('cesiumContainer').style.display = 'none';
+    document.getElementById('gmapContainer').style.display = 'block';
+    document.getElementById('bMap').textContent = 'C';
+    document.getElementById('bMap').title = 'Cesiumに切替';
+    document.getElementById('b3d').style.display = 'none';
+    document.getElementById('bFol').style.display = 'none';
+    initGoogleMap();
+    if(pts.length) buildGmapTrail();
+  } else {
+    // Google Maps → Cesium
+    mapEngine = 'cesium';
+    document.getElementById('cesiumContainer').style.display = 'block';
+    document.getElementById('gmapContainer').style.display = 'none';
+    document.getElementById('bMap').textContent = '🌍';
+    document.getElementById('bMap').title = 'Google Mapsに切替';
+    document.getElementById('b3d').style.display = 'flex';
+    document.getElementById('bFol').style.display = 'flex';
+  }
+}
+
+function buildGmapTrail() {
+  if(!gmap || !pts.length) return;
+  // 既存の軌跡を削除
+  gmapPolylines.forEach(p => p.setMap(null));
+  gmapPolylines = [];
+  if(gmapMarker) { gmapMarker.setMap(null); gmapMarker = null; }
+
+  const n = pts.length;
+  const NUM_SEG = 20;
+  const SEG = Math.max(2, Math.ceil(n / NUM_SEG));
+
+  const gmapColors = [
+    '#ff0033','#ff3300','#ff6600','#ff9900','#ffcc00',
+    '#ffff00','#b3ff00','#66ff00','#00ff00','#00ff66',
+    '#00ffb3','#00ffff','#00b3ff','#0066ff','#0000ff',
+    '#4d00ff','#9900ff','#cc00ff','#ff00cc','#ff0080',
+  ];
+
+  for(let s=0; s<n-1; s+=SEG) {
+    const end = Math.min(s+SEG, n-1);
+    const path = [];
+    for(let i=s; i<=end; i++)
+      path.push({lat: pts[i].lat, lng: pts[i].lon});
+    const midIdx = Math.floor((s+end)/2);
+    const t = Math.min(Math.floor((midIdx/(n-1))*20), 19);
+    const poly = new google.maps.Polyline({
+      path, strokeColor: gmapColors[t], strokeWeight: 3, strokeOpacity: 1.0, map: gmap
+    });
+    gmapPolylines.push(poly);
+  }
+
+  // 機体マーカー
+  gmapMarker = new google.maps.Marker({
+    position: {lat: pts[0].lat, lng: pts[0].lon},
+    map: gmap,
+    icon: {
+      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+      scale: 5, fillColor:'#f5c842', fillOpacity:1,
+      strokeColor:'#333', strokeWeight:1,
+    }
+  });
+
+  // 地図の中心を軌跡に合わせる
+  const bounds = new google.maps.LatLngBounds();
+  pts.forEach(p => bounds.extend({lat:p.lat, lng:p.lon}));
+  gmap.fitBounds(bounds);
+}
+
+function updateGmapMarker() {
+  if(!gmap || !gmapMarker || !pts.length) return;
+  const hi = headIdx();
+  gmapMarker.setPosition({lat: pts[hi].lat, lng: pts[hi].lon});
+}
 function setLayer(id) {
   document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('lb-'+id).classList.add('on');
@@ -647,6 +743,7 @@ function tick(ts) {
   document.getElementById('pf').style.width=(playhead*100)+'%';
   document.getElementById('cT').textContent=fmtTime(pts[hi].time-pts[0].time);
   updateAircraft(); updateHUD(hi);
+  if(mapEngine==='gmap') updateGmapMarker();
   if(frameCount%30===0) drawAltChart();
   if(playhead>=1){playing=false;rafId=null;document.getElementById('playBtn').textContent='▶';drawAltChart();return;}
   rafId=requestAnimationFrame(tick);
@@ -782,6 +879,7 @@ function loadFlightData(data) {
     fi.style.display = 'flex';
   }
   buildTrail(); updateAircraft(); updateHUD(0);
+  if(mapEngine==='gmap') buildGmapTrail();
   const ov=document.getElementById('ov');
   ov.style.opacity='0'; ov.style.pointerEvents='none';
   setTimeout(()=>{ov.style.display='none';},420);
