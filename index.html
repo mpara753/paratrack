@@ -426,29 +426,46 @@ function parseGPX(txt) {
 }
 function parseAuto(txt,name) {
   if(/\.gpx$/i.test(name)) return parseGPX(txt);
-  // IGCファイルの場合は補正処理を適用してからパース
   let igcTxt = txt;
   try {
     const result = IGCCorrection.correctIGC(txt, {
       fixAltitude: true,
       fixCoordinates: true,
       altThreshold: 3,
-      smoothWindow: 3,
+      smoothWindow: 5,
     });
-    // 補正後の座標にNaN/Infinityが含まれていないか検証
     const testPts = parseIGC(result.text);
-    const valid = testPts.every(p =>
-      isFinite(p.lat) && isFinite(p.lon) && isFinite(p.alt) &&
-      p.lat >= -90 && p.lat <= 90 && p.lon >= -180 && p.lon <= 180
+    // 不正座標を詳細に調べる
+    const badPts = testPts.filter(p =>
+      !isFinite(p.lat) || !isFinite(p.lon) || !isFinite(p.alt) ||
+      p.lat < -90 || p.lat > 90 || p.lon < -180 || p.lon > 180
     );
-    if(valid) {
+    if(badPts.length === 0) {
       igcTxt = result.text;
-      console.log('IGC補正完了:', result.log);
+      const log = result.log;
+      console.log('✅ IGC補正完了');
+      console.log('  総GPS点数:', log.totalPoints);
+      console.log('  高度補正点数:', log.altitudeFixedCount);
+      console.log('  座標RMS(lat):', log.coordinateRmsLat?.toFixed(4), 'm');
+      console.log('  座標RMS(lon):', log.coordinateRmsLon?.toFixed(4), 'm');
     } else {
-      console.warn('IGC補正後に不正座標が検出されました。補正なしで読み込みます。');
+      console.warn('⚠️ 不正座標が', badPts.length, '点検出 → 補正なしで読み込み');
+      console.warn('  不正座標例:', badPts.slice(0,3));
+      // 座標補正なしで高度補正のみ再試行
+      const result2 = IGCCorrection.correctIGC(txt, {
+        fixAltitude: true,
+        fixCoordinates: false,
+        altThreshold: 3,
+      });
+      const testPts2 = parseIGC(result2.text);
+      const bad2 = testPts2.filter(p => !isFinite(p.lat)||!isFinite(p.lon)||!isFinite(p.alt));
+      if(bad2.length === 0) {
+        igcTxt = result2.text;
+        console.log('✅ 高度補正のみ適用');
+      }
     }
   } catch(e) {
-    console.warn('IGC補正エラー:', e);
+    console.warn('⚠️ IGC補正エラー:', e);
   }
   const r=parseIGC(igcTxt);
   return r.length>5?r:parseGPX(txt);
