@@ -414,7 +414,7 @@ function parseIGC(txt) {
     const altG=+line.slice(30,35),altB=+line.slice(25,30);
     let alt = altB>0 ? altB : altG;
     if(!isFinite(alt)) alt = 0;
-    if(lat||lon) pts.push({lat,lon,alt,altG,altB,time:hh*3600+mm*60+ss});
+    if(lat||lon) pts.push({lat,lon,alt,time:hh*3600+mm*60+ss});
   }
   return pts;
 }
@@ -732,17 +732,6 @@ function loadFlightData(data) {
   if(!data||data.length<2){alert('有効なGPSデータが見つかりませんでした。');return;}
   playing=false; if(rafId){cancelAnimationFrame(rafId);rafId=null;}
   pts=data.filter(d=>d.lat||d.lon);
-
-  // GPS高度と気圧高度の差(A)を最初の有効な点から計算して気圧高度に加算
-  const validOffsets = pts
-    .filter(p => p.altG > 0 && p.altB > 0)
-    .slice(0, 20)
-    .map(p => p.altG - p.altB);
-  if(validOffsets.length > 0) {
-    const A = validOffsets.reduce((s,v)=>s+v,0) / validOffsets.length;
-    console.log('高度オフセット A =', A.toFixed(1), 'm');
-    pts.forEach(p => { p.alt = p.altB + A; });
-  }
   playhead=0; prevTs=null; frameCount=0;
   document.getElementById('playBtn').textContent='▶';
   bnds={
