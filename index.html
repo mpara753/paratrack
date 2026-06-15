@@ -775,10 +775,13 @@ function loadFlightData(data) {
   // ファイル情報をヘッダーに表示
   const fi = document.getElementById('fileInfo');
   if(fi) {
-    const startHH = String(Math.floor(pts[0].time/3600)).padStart(2,'0');
-    const startMM = String(Math.floor((pts[0].time%3600)/60)).padStart(2,'0');
-    const endHH   = String(Math.floor(pts[pts.length-1].time/3600)).padStart(2,'0');
-    const endMM   = String(Math.floor((pts[pts.length-1].time%3600)/60)).padStart(2,'0');
+    const toJST = sec => ((sec + 9*3600) % 86400);
+    const startJST = toJST(pts[0].time);
+    const endJST   = toJST(pts[pts.length-1].time);
+    const startHH = String(Math.floor(startJST/3600)).padStart(2,'0');
+    const startMM = String(Math.floor((startJST%3600)/60)).padStart(2,'0');
+    const endHH   = String(Math.floor(endJST/3600)).padStart(2,'0');
+    const endMM   = String(Math.floor((endJST%3600)/60)).padStart(2,'0');
     document.getElementById('fName').textContent = currentFileName || '—';
     document.getElementById('fDate').textContent = currentFileDate || '—';
     document.getElementById('fTime').textContent = `${startHH}:${startMM} ～ ${endHH}:${endMM}`;
