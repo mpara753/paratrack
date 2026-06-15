@@ -163,6 +163,133 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 </div>
 
 <script>
+// ── IGC補正ライブラリ（igcCorrection.js インライン展開）
+(function(global){
+function parseBRecord(line){
+  if(!line.startsWith('B')||line.length<35)return null;
+  try{
+    const hh=parseInt(line.slice(1,3),10),mm=parseInt(line.slice(3,5),10),ss=parseInt(line.slice(5,7),10);
+    const latDeg=parseInt(line.slice(7,9),10),latMin=parseInt(line.slice(9,11),10),latMinDec=parseInt(line.slice(11,14),10),latHemi=line[14];
+    const lonDeg=parseInt(line.slice(15,18),10),lonMin=parseInt(line.slice(18,20),10),lonMinDec=parseInt(line.slice(20,23),10),lonHemi=line[23];
+    let lat=latDeg+(latMin+latMinDec/1000)/60; if(latHemi==='S')lat=-lat;
+    let lon=lonDeg+(lonMin+lonMinDec/1000)/60; if(lonHemi==='W')lon=-lon;
+    const validity=line[24],altP=parseInt(line.slice(25,30),10),altG=parseInt(line.slice(30,35),10);
+    return{timeSec:hh*3600+mm*60+ss,hh,mm,ss,lat,lon,validity,altP,altG,raw:line};
+  }catch(e){return null;}
+}
+function latToIGC(lat){
+  const hemi=lat>=0?'N':'S'; lat=Math.abs(lat);
+  const deg=Math.floor(lat),minFull=(lat-deg)*60,min=Math.floor(minFull);
+  let minDec=Math.round((minFull-min)*1000); if(minDec>=1000)minDec=999;
+  return`${String(deg).padStart(2,'0')}${String(min).padStart(2,'0')}${String(minDec).padStart(3,'0')}${hemi}`;
+}
+function lonToIGC(lon){
+  const hemi=lon>=0?'E':'W'; lon=Math.abs(lon);
+  const deg=Math.floor(lon),minFull=(lon-deg)*60,min=Math.floor(minFull);
+  let minDec=Math.round((minFull-min)*1000); if(minDec>=1000)minDec=999;
+  return`${String(deg).padStart(3,'0')}${String(min).padStart(2,'0')}${String(minDec).padStart(3,'0')}${hemi}`;
+}
+function buildBRecord(point,lat,lon,altP,altG){
+  const tail=point.raw.slice(35);
+  return'B'+String(point.hh).padStart(2,'0')+String(point.mm).padStart(2,'0')+String(point.ss).padStart(2,'0')
+    +latToIGC(lat)+lonToIGC(lon)+point.validity
+    +String(Math.round(altP)).padStart(5,'0')+String(Math.round(altG)).padStart(5,'0')+tail;
+}
+function detectAltAnomalyRanges(points,threshold=3){
+  const n=points.length,anomaly=new Array(n).fill(false);
+  for(let i=1;i<n;i++){
+    const dag=points[i].altG-points[i-1].altG;
+    if(dag>=threshold){
+      anomaly[i]=true;
+      const ref=points[i-1].altG;
+      for(let j=i+1;j<Math.min(i+60,n);j++){
+        if(points[j].altG>ref+2)anomaly[j]=true; else break;
+      }
+    }
+  }
+  const ranges=[]; let i=0;
+  while(i<n){
+    if(anomaly[i]){
+      const start=i; while(i<n&&anomaly[i])i++; const end=i-1;
+      const prevIdx=start-1,nextIdx=end+1;
+      if(prevIdx>=0&&nextIdx<n)ranges.push({start,end,prevIdx,nextIdx});
+    }else i++;
+  }
+  return ranges;
+}
+function correctAltitude(points,threshold=3){
+  const ranges=detectAltAnomalyRanges(points,threshold); let fixedCount=0;
+  for(const{start,end,prevIdx,nextIdx}of ranges){
+    const pPrev=points[prevIdx],pNext=points[nextIdx],t0=pPrev.timeSec,t2=pNext.timeSec;
+    for(let bi=start;bi<=end;bi++){
+      const p=points[bi],ratio=(t2>t0)?(p.timeSec-t0)/(t2-t0):0.5;
+      p.altG=Math.round(pPrev.altG+ratio*(pNext.altG-pPrev.altG));
+      p.altP=Math.round(pPrev.altP+ratio*(pNext.altP-pPrev.altP));
+      fixedCount++;
+    }
+  }
+  return{fixedCount,ranges};
+}
+function buildNaturalCubicSpline(x,y){
+  const n=x.length-1,h=new Array(n);
+  for(let i=0;i<n;i++)h[i]=x[i+1]-x[i];
+  const alpha=new Array(n-1);
+  for(let i=1;i<n;i++)alpha[i-1]=(3/h[i])*(y[i+1]-y[i])-(3/h[i-1])*(y[i]-y[i-1]);
+  const l=new Array(n+1).fill(0),mu=new Array(n+1).fill(0),z=new Array(n+1).fill(0);
+  l[0]=1;
+  for(let i=1;i<n;i++){l[i]=2*(x[i+1]-x[i-1])-h[i-1]*mu[i-1];mu[i]=h[i]/l[i];z[i]=(alpha[i-1]-h[i-1]*z[i-1])/l[i];}
+  l[n]=1;
+  const c=new Array(n+1).fill(0),b=new Array(n),d=new Array(n);
+  for(let j=n-1;j>=0;j--){c[j]=z[j]-mu[j]*c[j+1];b[j]=(y[j+1]-y[j])/h[j]-h[j]*(c[j+1]+2*c[j])/3;d[j]=(c[j+1]-c[j])/(3*h[j]);}
+  const segments=[];
+  for(let j=0;j<n;j++)segments.push({xj:x[j],a:y[j],b:b[j],c:c[j],d:d[j]});
+  return segments;
+}
+function evalSpline(segments,xKnots,xVal){
+  let lo=0,hi=segments.length-1;
+  while(lo<hi-1){const mid=(lo+hi)>>1;if(xKnots[mid+1]<=xVal)lo=mid+1;else hi=mid;}
+  const seg=segments[lo],dx=xVal-seg.xj;
+  return seg.a+seg.b*dx+seg.c*dx*dx+seg.d*dx*dx*dx;
+}
+function smoothingSpline(t,vals,w=3){
+  const n=vals.length,half=Math.floor(w/2),smoothed=vals.slice();
+  for(let i=half;i<n-half;i++){let sum=0;for(let j=-half;j<=half;j++)sum+=vals[i+j];smoothed[i]=sum/w;}
+  const step=3,knotIdx=[];
+  for(let i=0;i<n;i+=step)knotIdx.push(i);
+  if(knotIdx[knotIdx.length-1]!==n-1)knotIdx.push(n-1);
+  const knotT=knotIdx.map(i=>t[i]),knotV=knotIdx.map(i=>smoothed[i]);
+  const segments=buildNaturalCubicSpline(knotT,knotV);
+  const result=new Array(n);
+  for(let i=0;i<n;i++)result[i]=evalSpline(segments,knotT,t[i]);
+  return result;
+}
+function correctCoordinates(points,w=3){
+  const t=points.map(p=>p.timeSec-points[0].timeSec),lats=points.map(p=>p.lat),lons=points.map(p=>p.lon);
+  const newLats=smoothingSpline(t,lats,w),newLons=smoothingSpline(t,lons,w);
+  let ssLat=0,ssLon=0;
+  for(let i=0;i<points.length;i++){
+    const dLat=(newLats[i]-lats[i])*111000,dLon=(newLons[i]-lons[i])*91000;
+    ssLat+=dLat*dLat;ssLon+=dLon*dLon;
+    points[i].lat=newLats[i];points[i].lon=newLons[i];
+  }
+  return{rmsLat:Math.sqrt(ssLat/points.length),rmsLon:Math.sqrt(ssLon/points.length)};
+}
+function correctIGC(igcText,options={}){
+  const{fixAltitude=true,fixCoordinates=true,altThreshold=3,smoothWindow=3}=options;
+  const eol=igcText.includes('\r\n')?'\r\n':'\n',lines=igcText.split(/\r?\n/);
+  const bLineIndices=[],points=[];
+  for(let i=0;i<lines.length;i++){const p=parseBRecord(lines[i]);if(p){bLineIndices.push(i);points.push(p);}}
+  if(points.length===0)return{text:igcText,log:{error:'Bレコードが見つかりません'}};
+  const log={totalPoints:points.length,altitudeFixedCount:0,altitudeRanges:[],coordinateRmsLat:0,coordinateRmsLon:0};
+  if(fixAltitude){const{fixedCount,ranges}=correctAltitude(points,altThreshold);log.altitudeFixedCount=fixedCount;log.altitudeRanges=ranges;}
+  if(fixCoordinates){const{rmsLat,rmsLon}=correctCoordinates(points,smoothWindow);log.coordinateRmsLat=rmsLat;log.coordinateRmsLon=rmsLon;}
+  const outLines=lines.slice();
+  for(let i=0;i<points.length;i++){const p=points[i];outLines[bLineIndices[i]]=buildBRecord(p,p.lat,p.lon,p.altP,p.altG);}
+  return{text:outLines.join(eol),log};
+}
+global.IGCCorrection={correctIGC,correctAltitude,correctCoordinates};
+})(typeof globalThis!=='undefined'?globalThis:this);
+
 // ── Cesium 初期化
 Cesium.Ion.defaultAccessToken = '';
 
@@ -287,7 +414,20 @@ function parseGPX(txt) {
 }
 function parseAuto(txt,name) {
   if(/\.gpx$/i.test(name)) return parseGPX(txt);
-  const r=parseIGC(txt);
+  // IGCファイルの場合は補正処理を適用してからパース
+  let igcTxt = txt;
+  try {
+    const result = IGCCorrection.correctIGC(txt, {
+      fixAltitude: true,
+      fixCoordinates: true,
+      altThreshold: 3,
+      smoothWindow: 3,
+    });
+    igcTxt = result.text;
+  } catch(e) {
+    console.warn('IGC補正エラー:', e);
+  }
+  const r=parseIGC(igcTxt);
   return r.length>5?r:parseGPX(txt);
 }
 function generateDemo() {
