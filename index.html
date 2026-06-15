@@ -784,33 +784,57 @@ function drawAltChart() {
   const n=pts.length,minA=bnds.minAlt,rng=Math.max(1,bnds.maxAlt-minA);
   const xOf=i=>p+(i/(n-1))*(W-p*2), yOf=a=>H-p-((a-minA)/rng)*(H-p*2);
 
-  // 塗りつぶし（薄い青）
-  ctx.beginPath(); ctx.moveTo(p,H-p);
-  pts.forEach((d,i)=>i?ctx.lineTo(xOf(i),yOf(d.alt)):ctx.moveTo(xOf(i),yOf(d.alt)));
+  // 目盛りの単位を決定（グラフ内に3〜6本が収まるよう自動調整）
+  const steps=[5,10,20,50,100,200,500,1000];
+  let step=50;
+  for(const s of steps){
+    if(rng/s <= 6){ step=s; break; }
+  }
+  const leftPad=32*dpr; // 目盛りラベル用の左余白
+
+  // 塗りつぶし
+  ctx.beginPath(); ctx.moveTo(leftPad,H-p);
+  pts.forEach((d,i)=>i?ctx.lineTo(leftPad+(i/(n-1))*(W-leftPad-p),yOf(d.alt)):ctx.moveTo(leftPad,yOf(d.alt)));
   ctx.lineTo(W-p,H-p); ctx.closePath();
   ctx.fillStyle='rgba(0,212,255,.08)'; ctx.fill();
 
-  // 折れ線を20色セグメントで描画（軌跡と同じ経過時間ルール）
-  const totalTime = pts[n-1].time - pts[0].time;
-  const gmColors = [
+  // 目盛り線とラベル
+  const firstTick = Math.ceil(minA/step)*step;
+  ctx.font=`${9*dpr}px sans-serif`;
+  ctx.textAlign='right';
+  ctx.textBaseline='middle';
+  for(let alt=firstTick; alt<=bnds.maxAlt; alt+=step){
+    const y=yOf(alt);
+    if(y<p || y>H-p) continue;
+    // グリッド線
+    ctx.beginPath(); ctx.moveTo(leftPad,y); ctx.lineTo(W-p,y);
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1*dpr; ctx.stroke();
+    // ラベル
+    ctx.fillStyle='rgba(160,200,220,0.7)';
+    ctx.fillText(alt+'m', leftPad-3*dpr, y);
+  }
+
+  // 折れ線を20色セグメントで描画
+  const totalTime=pts[n-1].time-pts[0].time;
+  const gmColors=[
     '#ff0033','#ff3300','#ff6600','#ff9900','#ffcc00',
     '#ffff00','#b3ff00','#66ff00','#00ff00','#00ff66',
     '#00ffb3','#00ffff','#00b3ff','#0066ff','#0000ff',
     '#4d00ff','#9900ff','#cc00ff','#ff00cc','#ff0080',
   ];
+  const xOfL=i=>leftPad+(i/(n-1))*(W-leftPad-p);
   for(let i=1;i<n;i++){
     const t=Math.max(0,Math.min(1,(pts[i].time-pts[0].time)/Math.max(1,totalTime)));
     const ci=Math.min(Math.floor(t*20),19);
     ctx.beginPath();
-    ctx.moveTo(xOf(i-1),yOf(pts[i-1].alt));
-    ctx.lineTo(xOf(i),yOf(pts[i].alt));
+    ctx.moveTo(xOfL(i-1),yOf(pts[i-1].alt));
+    ctx.lineTo(xOfL(i),yOf(pts[i].alt));
     ctx.strokeStyle=gmColors[ci];
-    ctx.lineWidth=1.5*dpr;
-    ctx.stroke();
+    ctx.lineWidth=1.5*dpr; ctx.stroke();
   }
 
   // 現在位置の縦線
-  const hx=xOf(headIdx());
+  const hx=xOfL(headIdx());
   ctx.beginPath(); ctx.moveTo(hx,0); ctx.lineTo(hx,H);
   ctx.strokeStyle='rgba(245,200,66,.9)'; ctx.lineWidth=2*dpr; ctx.stroke();
 }
