@@ -538,7 +538,10 @@ const ICON='data:image/svg+xml,'+encodeURIComponent(
 function buildTrail() {
   clearEntities();
   if(!pts.length) return;
-  const n=pts.length, SEG=Math.max(2,Math.floor(n/100));
+  const n=pts.length;
+  // セグメント数を最大20に固定（20色分け）
+  const NUM_SEG = 20;
+  const SEG = Math.max(2, Math.ceil(n / NUM_SEG));
   for(let s=0;s<n-1;s+=SEG){
     const end=Math.min(s+SEG,n-1), positions=[];
     for(let i=s;i<=end;i++)
