@@ -433,8 +433,15 @@ function parseAuto(txt,name) {
   if(/\.gpx$/i.test(name)) return parseGPX(txt);
   let igcTxt = txt;
   try {
-    const result = IGCCorrection.correctIGC(txt, {
+    // 2段階補正：1回目は強めに（離着陸対応）、2回目は弱めに（飛行中の精度維持）
+    const result1 = IGCCorrection.correctIGC(txt, {
       fixAltitude: true,
+      fixCoordinates: true,
+      altThreshold: 3,
+      smoothWindow: 15,
+    });
+    const result = IGCCorrection.correctIGC(result1.text, {
+      fixAltitude: false,
       fixCoordinates: true,
       altThreshold: 3,
       smoothWindow: 5,
