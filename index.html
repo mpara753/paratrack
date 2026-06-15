@@ -252,15 +252,27 @@ function evalSpline(segments,xKnots,xVal){
   return seg.a+seg.b*dx+seg.c*dx*dx+seg.d*dx*dx*dx;
 }
 function smoothingSpline(t,vals,w=3){
-  const n=vals.length,half=Math.floor(w/2),smoothed=vals.slice();
+  const n=vals.length;
+  if(n<4) return vals.slice(); // 点数が少ない場合はそのまま返す
+  const half=Math.floor(w/2),smoothed=vals.slice();
   for(let i=half;i<n-half;i++){let sum=0;for(let j=-half;j<=half;j++)sum+=vals[i+j];smoothed[i]=sum/w;}
   const step=3,knotIdx=[];
   for(let i=0;i<n;i+=step)knotIdx.push(i);
   if(knotIdx[knotIdx.length-1]!==n-1)knotIdx.push(n-1);
+  if(knotIdx.length<3) return smoothed; // ノット点が少ない場合は移動平均結果を返す
   const knotT=knotIdx.map(i=>t[i]),knotV=knotIdx.map(i=>smoothed[i]);
-  const segments=buildNaturalCubicSpline(knotT,knotV);
+  // 重複するtを除去（スプラインの前提条件：単調増加）
+  const uniqT=[], uniqV=[];
+  for(let i=0;i<knotT.length;i++){
+    if(i===0||knotT[i]>knotT[i-1]){uniqT.push(knotT[i]);uniqV.push(knotV[i]);}
+  }
+  if(uniqT.length<3) return smoothed;
+  const segments=buildNaturalCubicSpline(uniqT,uniqV);
   const result=new Array(n);
-  for(let i=0;i<n;i++)result[i]=evalSpline(segments,knotT,t[i]);
+  for(let i=0;i<n;i++){
+    const v=evalSpline(segments,uniqT,t[i]);
+    result[i]=isFinite(v)?v:smoothed[i]; // NaNの場合は移動平均値を使用
+  }
   return result;
 }
 function correctCoordinates(points,w=3){
@@ -423,7 +435,18 @@ function parseAuto(txt,name) {
       altThreshold: 3,
       smoothWindow: 3,
     });
-    igcTxt = result.text;
+    // 補正後の座標にNaN/Infinityが含まれていないか検証
+    const testPts = parseIGC(result.text);
+    const valid = testPts.every(p =>
+      isFinite(p.lat) && isFinite(p.lon) && isFinite(p.alt) &&
+      p.lat >= -90 && p.lat <= 90 && p.lon >= -180 && p.lon <= 180
+    );
+    if(valid) {
+      igcTxt = result.text;
+      console.log('IGC補正完了:', result.log);
+    } else {
+      console.warn('IGC補正後に不正座標が検出されました。補正なしで読み込みます。');
+    }
   } catch(e) {
     console.warn('IGC補正エラー:', e);
   }
