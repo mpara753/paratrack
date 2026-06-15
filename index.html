@@ -410,7 +410,9 @@ function parseIGC(txt) {
     let lat=latD+latM; if(line[14]==='S') lat=-lat;
     let lon=lonD+lonM; if(line[23]==='W') lon=-lon;
     const altG=+line.slice(30,35),altB=+line.slice(25,30);
-    if(lat||lon) pts.push({lat,lon,alt:altG>0?altG:altB,time:hh*3600+mm*60+ss});
+    let alt = altG>0 ? altG : altB;
+    if(!isFinite(alt)) alt = 0;
+    if(lat||lon) pts.push({lat,lon,alt,time:hh*3600+mm*60+ss});
   }
   return pts;
 }
@@ -435,9 +437,9 @@ function parseAuto(txt,name) {
       smoothWindow: 5,
     });
     const testPts = parseIGC(result.text);
-    // 不正座標を詳細に調べる
+    // altがNaNの点はalt=0として扱う（高度0は有効）
     const badPts = testPts.filter(p =>
-      !isFinite(p.lat) || !isFinite(p.lon) || !isFinite(p.alt) ||
+      !isFinite(p.lat) || !isFinite(p.lon) ||
       p.lat < -90 || p.lat > 90 || p.lon < -180 || p.lon > 180
     );
     if(badPts.length === 0) {
