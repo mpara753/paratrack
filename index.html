@@ -198,12 +198,15 @@ function buildBRecord(point,lat,lon,altP,altG){
 function detectAltAnomalyRanges(points,threshold=3){
   const n=points.length,anomaly=new Array(n).fill(false);
   for(let i=1;i<n;i++){
-    const dag=points[i].altG-points[i-1].altG;
+    // altBとaltG両方をチェック
+    const dagB=points[i].altB-points[i-1].altB;
+    const dagG=points[i].altG-points[i-1].altG;
+    const dag=Math.max(dagB,dagG);
     if(dag>=threshold){
       anomaly[i]=true;
-      const ref=points[i-1].altG;
+      const refB=points[i-1].altB,refG=points[i-1].altG;
       for(let j=i+1;j<Math.min(i+60,n);j++){
-        if(points[j].altG>ref+2)anomaly[j]=true; else break;
+        if(points[j].altB>refB+2||points[j].altG>refG+2)anomaly[j]=true; else break;
       }
     }
   }
@@ -410,7 +413,7 @@ function parseIGC(txt) {
     let lat=latD+latM; if(line[14]==='S') lat=-lat;
     let lon=lonD+lonM; if(line[23]==='W') lon=-lon;
     const altG=+line.slice(30,35),altB=+line.slice(25,30);
-    let alt = altG>0 ? altG : altB;
+    let alt = altB>0 ? altB : altG;
     if(!isFinite(alt)) alt = 0;
     if(lat||lon) pts.push({lat,lon,alt,time:hh*3600+mm*60+ss});
   }
