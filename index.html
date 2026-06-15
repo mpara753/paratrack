@@ -89,6 +89,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; h
 <div class="panel" id="header">
   <div class="logo">🪂</div>
   <div><div class="app-name">PARATRACK 3D</div><div class="app-sub">Motor Paraglider Flight Viewer</div></div>
+  <div id="fileInfo" style="display:none;flex-direction:column;justify-content:center;margin-left:8px;padding-left:12px;border-left:1px solid rgba(255,255,255,0.15);">
+    <div style="font-size:12px;font-weight:700;color:#f5c842;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;" id="fName">—</div>
+    <div style="font-size:10px;color:#5a7fa0;margin-top:1px;" id="fDate">—</div>
+    <div style="font-size:10px;color:#5a7fa0;" id="fTime">—</div>
+  </div>
   <div id="hstats">
     <div class="hs"><div class="v" id="hA">—</div><div class="l">最高高度 m</div></div>
     <div class="hs"><div class="v" id="hD">—</div><div class="l">飛行距離 km</div></div>
@@ -345,6 +350,7 @@ let pts=[], bnds=null, playhead=0, playing=false, rafId=null, prevTs=null;
 let zScale=1, trailW=3, is3D=true, followMode=false, frameCount=0;
 let followDistance=8000, followHeading=0, followPitch=Cesium.Math.toRadians(-35);
 let trailEntities=[], markerStart=null, markerEnd=null, aircraftEntity=null;
+let currentFileName='', currentFileDate='';
 
 
 function totalDur(){ return pts.length<2?1:Math.max(1,pts[pts.length-1].time-pts[0].time); }
@@ -428,6 +434,15 @@ function parseGPX(txt) {
   }
   return pts;
 }
+function parseIGCDate(txt) {
+  // HFDTE または HFDTEDATE レコードから日付を取得
+  const m = txt.match(/HFDTE(?:DATE:)?(\d{2})(\d{2})(\d{2})/);
+  if(!m) return null;
+  const dd=m[1],mm=m[2],yy=m[3];
+  const year = 2000 + parseInt(yy);
+  return `${year}年${parseInt(mm)}月${parseInt(dd)}日`;
+}
+
 function parseAuto(txt,name) {
   if(/\.gpx$/i.test(name)) return parseGPX(txt);
   let igcTxt = txt;
@@ -756,6 +771,19 @@ function loadFlightData(data) {
     <div class="sbox"><div class="bv">${pts.length}</div><div class="bl">GPS点数</div></div>
   </div>`;
   document.getElementById('hud').style.display='flex';
+
+  // ファイル情報をヘッダーに表示
+  const fi = document.getElementById('fileInfo');
+  if(fi) {
+    const startHH = String(Math.floor(pts[0].time/3600)).padStart(2,'0');
+    const startMM = String(Math.floor((pts[0].time%3600)/60)).padStart(2,'0');
+    const endHH   = String(Math.floor(pts[pts.length-1].time/3600)).padStart(2,'0');
+    const endMM   = String(Math.floor((pts[pts.length-1].time%3600)/60)).padStart(2,'0');
+    document.getElementById('fName').textContent = currentFileName || '—';
+    document.getElementById('fDate').textContent = currentFileDate || '—';
+    document.getElementById('fTime').textContent = `${startHH}:${startMM} ～ ${endHH}:${endMM}`;
+    fi.style.display = 'flex';
+  }
   buildTrail(); updateAircraft(); updateHUD(0);
   const ov=document.getElementById('ov');
   ov.style.opacity='0'; ov.style.pointerEvents='none';
@@ -769,6 +797,7 @@ function resetFlight() {
   pts=[]; bnds=null; playhead=0; prevTs=null; frameCount=0;
   document.getElementById('hstats').style.display='none';
   document.getElementById('hud').style.display='none';
+  const fi=document.getElementById('fileInfo'); if(fi) fi.style.display='none';
   document.getElementById('pf').style.width='0%';
   document.getElementById('cT').textContent='00:00:00';
   document.getElementById('tT').textContent='00:00:00';
@@ -780,8 +809,12 @@ function resetFlight() {
 
 document.getElementById('fi').addEventListener('change',e=>{
   const f=e.target.files[0]; if(!f) return;
+  currentFileName = f.name;
   const r=new FileReader();
-  r.onload=ev=>loadFlightData(parseAuto(ev.target.result,f.name));
+  r.onload=ev=>{
+    currentFileDate = /\.igc$/i.test(f.name) ? (parseIGCDate(ev.target.result)||'') : '';
+    loadFlightData(parseAuto(ev.target.result,f.name));
+  };
   r.readAsText(f); e.target.value='';
 });
 const dz=document.getElementById('dz');
@@ -790,8 +823,12 @@ document.body.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 document.body.addEventListener('drop',e=>{
   e.preventDefault(); dz.classList.remove('drag');
   const f=e.dataTransfer.files[0]; if(!f) return;
+  currentFileName = f.name;
   const r=new FileReader();
-  r.onload=ev=>loadFlightData(parseAuto(ev.target.result,f.name));
+  r.onload=ev=>{
+    currentFileDate = /\.igc$/i.test(f.name) ? (parseIGCDate(ev.target.result)||'') : '';
+    loadFlightData(parseAuto(ev.target.result,f.name));
+  };
   r.readAsText(f);
 });
 function loadDemo(){loadFlightData(generateDemo());}
