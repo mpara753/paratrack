@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%AA%82</text></svg>">
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
 <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhWY2oMHBgsHx4GPpPvXTPyuRkz8TePtg" defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY" defer></script>
 <style>
 * { margin:0; padding:0; }
 html,body,#cesiumContainer { width:100%; height:100%; overflow:hidden; }
@@ -783,14 +783,33 @@ function drawAltChart() {
   if(!pts.length) return;
   const n=pts.length,minA=bnds.minAlt,rng=Math.max(1,bnds.maxAlt-minA);
   const xOf=i=>p+(i/(n-1))*(W-p*2), yOf=a=>H-p-((a-minA)/rng)*(H-p*2);
-  const grd=ctx.createLinearGradient(0,0,W,0);
-  grd.addColorStop(0,'#00d4ff'); grd.addColorStop(1,'#ff6b35');
+
+  // 塗りつぶし（薄い青）
   ctx.beginPath(); ctx.moveTo(p,H-p);
   pts.forEach((d,i)=>i?ctx.lineTo(xOf(i),yOf(d.alt)):ctx.moveTo(xOf(i),yOf(d.alt)));
-  ctx.lineTo(W-p,H-p); ctx.closePath(); ctx.fillStyle='rgba(0,212,255,.1)'; ctx.fill();
-  ctx.beginPath();
-  pts.forEach((d,i)=>i?ctx.lineTo(xOf(i),yOf(d.alt)):ctx.moveTo(xOf(i),yOf(d.alt)));
-  ctx.strokeStyle=grd; ctx.lineWidth=1.5*dpr; ctx.stroke();
+  ctx.lineTo(W-p,H-p); ctx.closePath();
+  ctx.fillStyle='rgba(0,212,255,.08)'; ctx.fill();
+
+  // 折れ線を20色セグメントで描画（軌跡と同じ経過時間ルール）
+  const totalTime = pts[n-1].time - pts[0].time;
+  const gmColors = [
+    '#ff0033','#ff3300','#ff6600','#ff9900','#ffcc00',
+    '#ffff00','#b3ff00','#66ff00','#00ff00','#00ff66',
+    '#00ffb3','#00ffff','#00b3ff','#0066ff','#0000ff',
+    '#4d00ff','#9900ff','#cc00ff','#ff00cc','#ff0080',
+  ];
+  for(let i=1;i<n;i++){
+    const t=Math.max(0,Math.min(1,(pts[i].time-pts[0].time)/Math.max(1,totalTime)));
+    const ci=Math.min(Math.floor(t*20),19);
+    ctx.beginPath();
+    ctx.moveTo(xOf(i-1),yOf(pts[i-1].alt));
+    ctx.lineTo(xOf(i),yOf(pts[i].alt));
+    ctx.strokeStyle=gmColors[ci];
+    ctx.lineWidth=1.5*dpr;
+    ctx.stroke();
+  }
+
+  // 現在位置の縦線
   const hx=xOf(headIdx());
   ctx.beginPath(); ctx.moveTo(hx,0); ctx.lineTo(hx,H);
   ctx.strokeStyle='rgba(245,200,66,.9)'; ctx.lineWidth=2*dpr; ctx.stroke();
