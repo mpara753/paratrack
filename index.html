@@ -574,15 +574,9 @@ function buildTrail() {
         clampToGround:false}
     }));
   }
-  // スタート/エンドマーカー
-  markerStart=viewer.entities.add({
-    position:Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale),
-    point:{pixelSize:10,color:Cesium.Color.fromCssColorString('#00ff78'),outlineColor:Cesium.Color.WHITE,outlineWidth:2}
-  });
-  markerEnd=viewer.entities.add({
-    position:Cesium.Cartesian3.fromDegrees(pts[n-1].lon,pts[n-1].lat,pts[n-1].alt*zScale),
-    point:{pixelSize:10,color:Cesium.Color.fromCssColorString('#ff3c3c'),outlineColor:Cesium.Color.WHITE,outlineWidth:2}
-  });
+  // スタート/エンドマーカーは非表示
+  markerStart = null;
+  markerEnd = null;
   // 機体アイコン
   const p0=Cesium.Cartesian3.fromDegrees(pts[0].lon,pts[0].lat,pts[0].alt*zScale);
   aircraftEntity=viewer.entities.add({
