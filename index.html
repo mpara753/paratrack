@@ -198,15 +198,13 @@ function buildBRecord(point,lat,lon,altP,altG){
 function detectAltAnomalyRanges(points,threshold=3){
   const n=points.length,anomaly=new Array(n).fill(false);
   for(let i=1;i<n;i++){
-    // altBとaltG両方をチェック
-    const dagB=points[i].altB-points[i-1].altB;
-    const dagG=points[i].altG-points[i-1].altG;
-    const dag=Math.max(dagB,dagG);
+    // altP（気圧高度）を補正対象とする
+    const dag=points[i].altP-points[i-1].altP;
     if(dag>=threshold){
       anomaly[i]=true;
-      const refB=points[i-1].altB,refG=points[i-1].altG;
+      const ref=points[i-1].altP;
       for(let j=i+1;j<Math.min(i+60,n);j++){
-        if(points[j].altB>refB+2||points[j].altG>refG+2)anomaly[j]=true; else break;
+        if(points[j].altP>ref+2)anomaly[j]=true; else break;
       }
     }
   }
@@ -226,8 +224,9 @@ function correctAltitude(points,threshold=3){
     const pPrev=points[prevIdx],pNext=points[nextIdx],t0=pPrev.timeSec,t2=pNext.timeSec;
     for(let bi=start;bi<=end;bi++){
       const p=points[bi],ratio=(t2>t0)?(p.timeSec-t0)/(t2-t0):0.5;
-      p.altG=Math.round(pPrev.altG+ratio*(pNext.altG-pPrev.altG));
+      // altP（気圧高度）を補正
       p.altP=Math.round(pPrev.altP+ratio*(pNext.altP-pPrev.altP));
+      p.altG=Math.round(pPrev.altG+ratio*(pNext.altG-pPrev.altG));
       fixedCount++;
     }
   }
@@ -437,13 +436,13 @@ function parseAuto(txt,name) {
     const result1 = IGCCorrection.correctIGC(txt, {
       fixAltitude: true,
       fixCoordinates: true,
-      altThreshold: 3,
+      altThreshold: 2,
       smoothWindow: 15,
     });
     const result = IGCCorrection.correctIGC(result1.text, {
       fixAltitude: false,
       fixCoordinates: true,
-      altThreshold: 3,
+      altThreshold: 2,
       smoothWindow: 5,
     });
     const testPts = parseIGC(result.text);
