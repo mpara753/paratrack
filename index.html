@@ -378,8 +378,8 @@ viewer.camera.changed.addEventListener(() => {
       if(isFinite(scale)) aircraftEntity.billboard.scale = scale;
     }
   }
-  followHeading = viewer.camera.heading;
-  followPitch   = viewer.camera.pitch;
+  if(isFinite(viewer.camera.heading)) followHeading = viewer.camera.heading;
+  if(isFinite(viewer.camera.pitch))   followPitch   = viewer.camera.pitch;
 });
 
 // ── ユーティリティ
@@ -705,15 +705,21 @@ function updateAircraft() {
   const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
   aircraftEntity.position.setValue(pos);
   aircraftEntity.label.text=Math.round(cur.alt)+' m';
-  // テール更新
   // アイコンスケール
   const camHeight=viewer.camera.positionCartographic.height;
-  const minH=500,maxH=200000,minS=0.6,maxS=0.08;
-  const t=Math.max(0,Math.min(1,(Math.log(camHeight)-Math.log(minH))/(Math.log(maxH)-Math.log(minH))));
-  aircraftEntity.billboard.scale=minS+(maxS-minS)*t;
+  if(isFinite(camHeight) && camHeight > 0) {
+    const minH=500,maxH=200000,minS=0.6,maxS=0.08;
+    const t=Math.max(0,Math.min(1,(Math.log(camHeight)-Math.log(minH))/(Math.log(maxH)-Math.log(minH))));
+    const scale=minS+(maxS-minS)*t;
+    if(isFinite(scale)) aircraftEntity.billboard.scale=scale;
+  }
   // 追従
-  if(followMode){
-    viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
+  if(followMode && isFinite(followHeading) && isFinite(followPitch) && isFinite(followDistance) && followDistance>0){
+    try {
+      viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
+    } catch(e) {
+      console.warn('追従カメラ更新エラー:', e);
+    }
   }
 }
 
@@ -721,17 +727,17 @@ function toggleFollow() {
   followMode=!followMode;
   document.getElementById('bFol').classList.toggle('on',followMode);
   if(followMode){
-    followHeading=viewer.camera.heading;
-    followPitch=viewer.camera.pitch;
+    if(isFinite(viewer.camera.heading)) followHeading=viewer.camera.heading;
+    if(isFinite(viewer.camera.pitch))   followPitch=viewer.camera.pitch;
     viewer.trackedEntity=undefined;
     if(aircraftEntity&&pts.length){
       const cur=pts[headIdx()];
       const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
-      followDistance=Cesium.Cartesian3.distance(viewer.camera.position,pos);
-      followDistance=Math.max(200,Math.min(followDistance,50000));
+      const dist=Cesium.Cartesian3.distance(viewer.camera.position,pos);
+      if(isFinite(dist) && dist>0) followDistance=Math.max(200,Math.min(dist,50000));
     }
   } else {
-    viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+    try { viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY); } catch(e){}
   }
 }
 
@@ -880,10 +886,14 @@ viewer.scene.canvas.addEventListener('wheel',e=>{
   followDistance*=e.deltaY>0?1.2:0.8;
   followDistance=Math.max(50,Math.min(followDistance,100000));
   // 即座に反映
-  if(aircraftEntity&&pts.length){
+  if(aircraftEntity&&pts.length&&isFinite(followHeading)&&isFinite(followPitch)&&isFinite(followDistance)){
     const cur=pts[headIdx()];
     const pos=Cesium.Cartesian3.fromDegrees(cur.lon,cur.lat,cur.alt*zScale);
-    viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
+    try {
+      viewer.camera.lookAt(pos,new Cesium.HeadingPitchRange(followHeading,followPitch,followDistance));
+    } catch(err) {
+      console.warn('ホイールズームエラー:', err);
+    }
   }
 },{passive:false});
 
